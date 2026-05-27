@@ -17,8 +17,8 @@ reproduction of the phenomenon, iterate candidate fixes on *that* (a fast,
 clean loop), then port the working fix back to the real code.
 
 Reference: <https://r4ds.hadley.nz/workflow-help.html#making-a-reprex>. The
-payoff is real: ~80% of the time, the act of building a thorough reprex
-surfaces the cause on its own — the noise you strip away was hiding it.
+payoff is real: often, the act of building a thorough reprex surfaces the
+cause on its own — the noise you strip away was hiding it.
 
 ## When this fires
 
@@ -73,7 +73,7 @@ but nothing more.
 
 ## Minimizing the data
 
-- Prefer a **built-in dataset** (`mtcars`, `iris`, `mpg`) or a hand-built
+- Prefer a **built-in dataset** (`mtcars`, `mpg`) or a hand-built
   tiny frame over the real data.
 - If you must use a slice of real data, serialize the minimal slice with
   `dput()` so the reprex recreates it inline — no external file dependency.
