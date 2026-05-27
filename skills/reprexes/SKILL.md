@@ -22,8 +22,8 @@ context of the motivating application.** Extract a minimal, self-contained
 reproduction of the phenomenon, iterate candidate fixes on *that* (a fast,
 clean loop), then port the working fix back to the real code.
 
-Reference: <https://r4ds.hadley.nz/workflow-help.html#making-a-reprex>. The
-payoff is real: often, the act of building a thorough reprex surfaces the
+Reference: <https://r4ds.hadley.nz/workflow-help.html#making-a-reprex>.
+The payoff is real: often, the act of building a thorough reprex surfaces the
 cause on its own — the noise you strip away was hiding it.
 
 ## When this fires
@@ -124,8 +124,9 @@ but nothing more.
     self-contained — fix that before sharing.
 - When the bug might be **version-dependent**, capture `sessionInfo()` (or set
   `session_info = TRUE` above) in the reprex so versions are part of the
-  record. If you suspect *stale* packages are the cause, `tidyverse_update()`
-  outside the reprex can rule that out — but it updates packages, it doesn't
+  record. If you suspect *stale* packages are the cause,
+  `tidyverse::tidyverse_update()` outside the reprex can rule that out — but it
+  updates packages, it doesn't
   record versions, so don't put it in the reprex itself.
 - Build artifacts (`_site/`, `_freeze/`, `.quarto/`) are common confounders
   for "it renders differently" bugs — a clean standalone render sidesteps
