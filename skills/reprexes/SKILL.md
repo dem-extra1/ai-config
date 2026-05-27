@@ -96,7 +96,8 @@ but nothing more.
   session (via `callr` since reprex 2.0) and emits code **plus actual
   output**.
   Copy the code and call `reprex::reprex()` (reads the clipboard by default),
-  or point it at a file with `reprex(input = "/tmp/reprex.R")` — handy from a
+  or point it at a file with `reprex(input = "/tmp/reprex.R")` (or a
+  `tempfile(fileext = ".R")` path on non-Unix machines) — handy from a
   non-interactive CLI session where there's no clipboard. Useful arguments:
   - `venue =` — output format:
     - `"gh"` — GitHub-flavored Markdown (default)
@@ -112,10 +113,12 @@ but nothing more.
     subprocess or C-level output that doesn't come back as normal R results).
   - `wd =` — set the working directory when the code needs one.
   - Use this when the reprex is destined for a PR comment or an upstream
-    issue. Companion helpers handle "wild-caught" reprexes: `reprex_clean()`
-    (strip the prompts/output from a copied reprex), `reprex_rescue()`
+    issue. Companion helpers handle "wild-caught" reprexes (all exported in
+    reprex 2.x): `reprex_clean()` (strip the `#>` output markers from a
+    rendered/pasted reprex, leaving runnable code), `reprex_rescue()`
     (recover code from R-console output with `>`/`+` prompts), and
-    `reprex_invert()` (turn a rendered reprex back into plain code).
+    `reprex_invert()` (the inverse of `reprex()` — recover the input code
+    from a rendered reprex).
   - Validation bonus: because `reprex()` runs in a fresh session, if it errors
     on a missing object or package, your example wasn't actually
     self-contained — fix that before sharing.
@@ -138,7 +141,7 @@ but nothing more.
 ## Don't
 
 - Don't paste the entire app/module — that's the opposite of a reprex.
-- Don't commit scratch reprex files; keep them in `/tmp` or a gitignored
-  scratch path.
+- Don't commit scratch reprex files; keep them in `/tmp` (or `tempdir()` on
+  non-Unix machines) or a gitignored scratch path.
 - Don't iterate fixes in the slow full-context loop once you have a reprex
   that reproduces.
