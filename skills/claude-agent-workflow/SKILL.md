@@ -211,6 +211,40 @@ the late-comment polling step. Don't expand to `Bash(gh *)` without
 thinking about what other gh subcommands you're handing the agent
 (`gh pr merge`, `gh release create`, etc.).
 
+### 10. In-thread replies to inline review comments
+
+When the agent is triggered by a `pull_request_review_comment` (an inline
+comment on the diff), the prose-reply post-step should reply **in the review
+thread**, not as a detached top-level comment:
+
+```bash
+BODY="$(printf '%s\n\n<sub>— posted by @claude post-step …</sub>\n' "$RESPONSE" "$RUN_URL")"
+if [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
+  if jq -n --arg b "$BODY" '{body: $b}' \
+       | gh api --method POST \
+           "repos/${{ github.repository }}/pulls/$ENTITY_NUMBER/comments/${{ github.event.comment.id }}/replies" \
+           --input - >/dev/null; then
+    exit 0
+  fi
+  echo "::warning::In-thread reply failed; falling back to a top-level comment."
+fi
+gh issue comment "$ENTITY_NUMBER" --body "$BODY" || echo "::warning::…"
+```
+
+- The replies endpoint is `POST /repos/{owner}/{repo}/pulls/{N}/comments/{id}/replies`
+  with `{body}`; `id` is `github.event.comment.id`, `N` is the PR number
+  (`ENTITY_NUMBER` resolves to it for this event).
+- **Keep the top-level fallback** — the parent comment can be deleted between
+  trigger and post, which would 404 the reply.
+- Only branch for `pull_request_review_comment`. `issue_comment` (PR
+  conversation), `pull_request_review` (review summary), and `issues` triggers
+  all stay top-level — issue and PR-conversation comments share the same
+  `/issues/{N}/comments` endpoint, and a review summary has no single line
+  thread to anchor to.
+- Pair with a prompt nudge so Claude writes a thread-appropriate reply ("…that
+  reply is posted as a threaded reply to that exact comment — keep it focused
+  on the line(s) that comment is about"). Added in qwt#93 / rme#833.
+
 ## Refactoring this file
 
 If you're tempted to "simplify" something, check this skill first to
