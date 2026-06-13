@@ -3,7 +3,6 @@ description: Release a previously-claimed PR so other agents (the @claude bot, o
 allowed-tools:
   - Bash
   - mcp__github__add_issue_comment
-  - mcp__github__list_pull_requests
   - mcp__github__pull_request_read
 ---
 
@@ -19,19 +18,20 @@ If only one positional arg is given, treat it as `pr_number`.
 
 ## What to do
 
-1. Resolve the current repository's `<owner>` and `<repo>` — this command is repo-agnostic, so don't hardcode them:
+1. Resolve the current repository's `<owner>` and `<repo>` as separate values — this command is repo-agnostic, so don't hardcode them:
 
     ```bash
-    gh repo view --json owner,name -q '.owner.login + "/" + .name'
+    owner=$(gh repo view --json owner -q .owner.login)
+    repo=$(gh repo view --json name -q .name)
     ```
 
-    Use that `<owner>`/`<repo>` for every GitHub call below.
+    Use that `<owner>`/`<repo>` pair for every GitHub call below.
 
 2. Sanity-check there's an actually-open claim to release:
 
     Call `mcp__github__pull_request_read(method = "get_comments", owner = <owner>, repo = <repo>, pullNumber = <pr_number>)`. Walk the last ~10 comments and confirm:
 
-    - the most recent claim/release exchange is an unmatched claim (a "paws off until I'm done" comment that hasn't been followed by a "paws off released"),
+    - the most recent claim/release exchange is an unmatched claim — a "paws off until I'm done" claim comment that hasn't yet been followed by a release. Treat **either** release phrasing as a release marker: this command's `… done — paws off released.` **or** the existing `claim-pr` skill's `Done with my local session — unclaiming.`,
     - and that claim's `lane` matches the lane we're releasing.
 
     If the most recent signal is already a release, or the claim was by a different lane, stop and tell the user — don't post a stray release that misrepresents who was holding the PR.
