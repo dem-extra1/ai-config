@@ -1,5 +1,5 @@
 ---
-description: Release a previously-claimed PR so other agents (the @claude bot, other CLI sessions) know they can pick it up again.
+description: Release a previously-claimed PR so other agents (the @claude bot, other CLI sessions) know they can pick it up again. Requires the GitHub MCP server — reads and posts comments via mcp__github__* tools (unlike /claim-pr, which uses only gh).
 allowed-tools:
   - Bash
   - mcp__github__add_issue_comment
@@ -52,7 +52,7 @@ If only one positional arg is given, treat it as `pr_number`.
 
     `mcp__github__add_issue_comment(owner = <owner>, repo = <repo>, issueNumber = <pr_number>, body = <body>)`.
 
-5. Reply with one short confirmation including the PR's URL — no PR comment, no further work on the branch.
+5. Reply with one short confirmation including the PR's URL — no further PR comment, no further work on the branch.
 
 ## Don't
 
