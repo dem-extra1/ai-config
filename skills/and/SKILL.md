@@ -6,6 +6,7 @@ description: >
   gave — folding the revision into that task (same queue position), not creating
   a new one. Invoke explicitly with /and.
 user-invocable: true
+allowed-tools: []
 ---
 
 # and

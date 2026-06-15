@@ -7,6 +7,7 @@ description: >
   task to the front of the queue while letting current work finish. Invoke
   explicitly with /next.
 user-invocable: true
+allowed-tools: []
 ---
 
 # next
@@ -55,7 +56,7 @@ The user types `/next` followed by one or more instructions, e.g.:
 
 ## What this is not
 
-- Not an interrupt — that's [`first`](../first). `/next` waits for the current
+- Not an interrupt — that's [`first`](../first/SKILL.md). `/next` waits for the current
   task to finish.
-- Not a tail task — that's [`also`](../also). `/next` jumps ahead of the rest of
+- Not a tail task — that's [`also`](../also/SKILL.md). `/next` jumps ahead of the rest of
   the queue, just not ahead of the task in flight.

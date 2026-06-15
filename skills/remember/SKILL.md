@@ -39,9 +39,9 @@ say which you chose.
 
 If the instruction is an *automated action* the harness must perform every time
 ("after each commit run X", "whenever I edit Y do Z"), memory alone can't
-execute it — that needs a hook in `settings.json`. Route those to the
-`update-config` skill instead (and say so) rather than writing a memory that
-never fires.
+execute it — that needs a hook in `settings.json` or `settings.local.json`.
+Tell the user this and explain that automated behaviors require editing those
+files directly (hooks section), not writing a memory that never fires.
 
 ## Writing a user-wide instruction (`~/.claude/CLAUDE.md`)
 

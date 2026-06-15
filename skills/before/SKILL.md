@@ -6,6 +6,7 @@ description: >
   appends `/before <target> <instructions>` — e.g. `/before that ...` to slot it
   just before the most recently added task. Invoke explicitly with /before.
 user-invocable: true
+allowed-tools: []
 ---
 
 # before

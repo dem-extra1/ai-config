@@ -6,12 +6,13 @@ description: >
   jump a task ahead of everything else, even pausing work already in progress to
   do it now. Invoke explicitly with /first.
 user-invocable: true
+allowed-tools: []
 ---
 
 # first
 
 `/first <instructions>` means: **do this before anything else — even before
-finishing what you're in the middle of.** It is the counter to [`also`](../also):
+finishing what you're in the middle of.** It is the counter to [`also`](../also/SKILL.md):
 `/also` appends to the tail of the queue, `/first` jumps to the head and can
 **preempt in-progress work**.
 
@@ -57,8 +58,8 @@ The user types `/first` followed by one or more instructions, e.g.:
 
 ## What this is not
 
-- Not a tail task — that's [`also`](../also). `/first` raises urgency to the max.
-- Not "next after the current task" — that's [`next`](../next). `/first` may
+- Not a tail task — that's [`also`](../also/SKILL.md). `/first` raises urgency to the max.
+- Not "next after the current task" — that's [`next`](../next/SKILL.md). `/first` may
   interrupt the current task; `/next` waits for it to finish.
 - Not permission to leave things broken — pause cleanly, then resume the
   displaced work; never silently drop it.

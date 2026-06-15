@@ -7,6 +7,7 @@ description: >
   else gets added (final render, commit-and-push, cleanup, wrap-up). Invoke
   explicitly with /last.
 user-invocable: true
+allowed-tools: []
 ---
 
 # last

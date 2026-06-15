@@ -6,6 +6,7 @@ description: >
   `/also <instructions>` to add a follow-up task that should run last, without
   preempting work already in flight. Invoke explicitly with /also.
 user-invocable: true
+allowed-tools: []
 ---
 
 # also
