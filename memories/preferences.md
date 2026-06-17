@@ -49,3 +49,5 @@
   scope for the current one). Never leave skill changes as local-only uncommitted edits.
 - During ARDI loops: if a round has only Rebut/Defer dispositions (no code pushed),
   still explicitly re-request review — the push won't auto-trigger the reviewer bot.
+- Always look for opportunities to create new reusable skills from multi-step processes.
+  When a workflow emerges that could be codified, proactively suggest creating a skill for it.
