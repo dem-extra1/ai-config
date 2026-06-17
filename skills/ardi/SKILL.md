@@ -27,12 +27,17 @@ finding → push → post summary → re-request review → repeat until clean.
    - **Rebut** — explain why it's correct (with evidence).
    - **Defer** — file a follow-up issue, link it.
 
-4. **Push fixes.** Sync with main first if it moved ahead.
+4. **Push fixes** (if any). Sync with main first if it moved ahead.
 
 5. **Post the ARD summary** as a comment on the MR/PR (table format per the
    ARD skill).
 
-6. **Re-request review.** Wait for the new verdict.
+6. **Re-request review.** If no code was pushed (all items were Rebutted or
+   Deferred), the push won't auto-trigger a new review — you must still
+   explicitly re-request review (e.g., post a comment triggering the bot,
+   or use the forge API to request a new review). The ARD summary comment
+   itself can serve as the trigger if the reviewer bot watches for it.
+   Wait for the new verdict.
 
 7. **Repeat from step 2** until the verdict has zero findings.
 

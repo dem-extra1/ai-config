@@ -34,7 +34,7 @@ For facts specific to the current workspace:
 - CI/CD pipeline behavior
 - Test commands and expected outputs
 
-### Shared claude-config skills (`~/.claude/skills/`)
+### Shared ai-config skills (`~/.claude/skills/`)
 For reusable workflows that other agents should also follow:
 - Multi-step procedures (review loops, deployment steps)
 - Decision frameworks (when to defer, when to split MRs)
@@ -71,15 +71,15 @@ For standing instructions that should always be in context:
 ## Sharing with other agents
 
 The `~/.claude/skills/` directory is a symlink to wherever you cloned
-`claude-config` (discover the path with `readlink ~/.claude/skills`).
+`ai-config` (discover the path with `readlink ~/.claude/skills`).
 Any skill written there is:
 - Available to this agent via the skills system
-- Shareable with other agents by cloning/pulling the claude-config repo
+- Shareable with other agents by cloning/pulling the ai-config repo
 - Version-controlled and reviewable via PRs
 
 When creating a new skill that other agents should use:
 1. Write it in `~/.claude/skills/<name>/SKILL.md`
-2. Branch, commit, push, and open a PR on the claude-config repo
+2. Branch, commit, push, and open a PR on the ai-config repo
 3. The skill becomes available locally immediately (via symlink)
 4. Other agents get it after the PR merges and they pull
 

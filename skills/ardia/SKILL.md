@@ -21,7 +21,9 @@ each to a clean review verdict in series.
 2. **For each PR/MR, run ARDI:**
    - Read the latest review.
    - ARD every finding (Address / Rebut / Defer).
-   - Push fixes, post summary, re-request review.
+   - Push fixes (if any), post summary, re-request review.
+   - If no code was pushed (all Rebut/Defer), still explicitly re-request
+     review — the push won't auto-trigger it.
    - Repeat until clean.
    - Move to the next PR/MR.
 
