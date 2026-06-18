@@ -80,23 +80,30 @@ is the `@claude` **CI bot** running on *this* repo's PRs/issues
 (`.github/workflows/claude-bot.yml`).
 
 That bot runs `claude-code-action`, which does **not** auto-discover skills from
-`~/.claude` (the runner's home is fresh) or from a plugin unless it's installed
-— but it **does** load project skills from `.claude/skills/` in the checked-out
-repo. So `.claude/skills` is a symlink to the top-level `skills/`:
+`~/.claude` (the runner's home is fresh) or from a plugin unless it's installed.
+It *does* load **project** skills from `.claude/skills/` in the checked-out
+repo — but a **committed** `.claude/skills` symlink is silently **dropped during
+checkout** (confirmed by a live `@claude` test), so committing one doesn't work.
+
+Instead, the reusable workflow recreates the link **at runtime**. The
+[`d-morrison/gha`](https://github.com/d-morrison/gha) `claude.yml` exposes an
+opt-in `link-skills` input that, after the final checkout and right before
+Claude runs, does:
 
 ```
-.claude/skills -> ../skills
+ln -s ../skills .claude/skills
 ```
 
-That single symlink (no duplication; `skills/` stays the one source of truth)
-makes every skill available to the bot by bare name. Comment **`@claude ardi`**
-(or any other skill trigger) on a PR or issue and the bot can invoke the `ardi`
-skill, exactly like the local CLI does. New skills added under `skills/` are
-picked up automatically — nothing else to wire.
+This repo's caller (`.github/workflows/claude-bot.yml`) sets `link-skills:
+true`, so every top-level skill becomes available to the bot by **bare name**.
+Comment **`@claude ardi`** (or any other skill trigger) on a PR or issue and the
+bot can invoke the `ardi` skill, exactly like the local CLI does. No duplication
+(`skills/` stays the one source of truth) and new skills are picked up
+automatically.
 
-> When ai-config itself is the open project locally, these also surface as
-> project skills (alongside the `~/.claude/skills` user copies); they resolve to
-> the same files, so it's idempotent.
+> Other repos that use the same `d-morrison/gha` bot can opt in the same way
+> (`link-skills: true`) if they ship a top-level `skills/` dir; it's a no-op
+> otherwise.
 
 ## What's tracked
 
