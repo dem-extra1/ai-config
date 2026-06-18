@@ -4,6 +4,10 @@
 - `gh` opens a pager (alternate buffer) that hangs the agent terminal.
 - Always disable it: pipe `| cat` or set `GH_PAGER=cat` (e.g. `gh pr view 116 | cat`).
 
+## Git tags (force-move / slide)
+- To move a tag to a new commit: `git tag -d <tag> && git tag <tag> <target> && git push origin :refs/tags/<tag> && git push origin <tag>`
+- Can't use `git push --force origin <tag>` on some GitLab instances (protected tags). The delete+recreate pattern always works.
+
 ## glab (GitLab CLI)
 - Installed via Homebrew (macOS) or system package manager — verify with `which glab`.
 - Authenticated on your GitLab instance — run `glab auth status` to verify host and username

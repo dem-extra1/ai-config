@@ -58,3 +58,5 @@
   still explicitly re-request review — the push won't auto-trigger the reviewer bot.
 - Always look for opportunities to create new reusable skills from multi-step processes.
   When a workflow emerges that could be codified, proactively suggest creating a skill for it.
+- "slide <tag>" means force-move a floating Git tag to current main HEAD (delete + recreate + push).
+  Common for repos with floating major-version tags that consumers reference.
