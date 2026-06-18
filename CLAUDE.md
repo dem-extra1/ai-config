@@ -78,6 +78,16 @@ This applies to:
 It does **not** apply to read-only inspection: `show me PR #X`, `what's the
 status of #Y`, `explain the diff on #Z`. Those don't risk a parallel session.
 
+## Always run ARDI on PRs you touch
+
+Whenever I'm working a PR/MR, run the full **ARDI** loop by default, without
+being asked: **A**ddress every flagged item, **R**ebut findings that are wrong,
+**D**efer out-of-scope items to tracked issues, then **I**terate with a fresh
+review — repeating until the latest review has zero flagged items under any
+heading. Don't stop at "review-clean, just needs approval" and hand triage
+back; keep the cycle going until it's genuinely clean. (Mechanics for each
+step are in the sections below.)
+
 ## Address every in-scope review comment, even non-blockers
 
 When iterating on a PR with `@claude review` (or any other reviewer), **address
