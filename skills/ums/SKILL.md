@@ -52,13 +52,20 @@ reflect, and persist.
 4. **Commit and push ALL ai-config changes — via a branch + PR, not direct to
    `main`.** Skills AND memory files both live in the ai-config repo
    (`~/.claude/skills/` → discover actual path with `readlink`). Never leave
-   ANY changes (skills, memories, etc.) as local-only uncommitted edits.
+   ANY changes (skills, memories, etc.) as local-only uncommitted edits. Run
+   **one** of the two paths below — not both:
+
+   *Already on the open PR's branch* (e.g. mid-ARDI): commit + push to it.
    ```bash
    cd "$(dirname "$(readlink ~/.claude/skills)")"
-   # Already on an open PR's branch? Commit + push to it:
-   git add -A && git commit -m "ums: <brief summary>" && git push
-   # Otherwise branch off main first — a direct-to-main push is denied by
-   # auto-mode and bypasses review:
+   git add -A && git commit -m "ums: <brief summary>"
+   git push origin HEAD
+   ```
+
+   *No PR yet:* branch off main first — a direct-to-main push is denied by
+   auto-mode and bypasses review.
+   ```bash
+   cd "$(dirname "$(readlink ~/.claude/skills)")"
    git fetch origin main && git checkout -b ums-<topic> origin/main
    git add -A && git commit -m "ums: <brief summary>"
    git push -u origin HEAD && gh pr create --fill   # then request d-morrison as reviewer
