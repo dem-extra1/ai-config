@@ -72,6 +72,32 @@ session (or prefix with `claude ` to run them in a terminal):
 No `version` is pinned, so every commit to this repo counts as a new version —
 sessions with marketplace auto-update pick up the latest automatically.
 
+## Use these skills with this repo's own `@claude` bot
+
+The two mechanisms above cover the **CLI** (`~/.claude/skills` via `bootstrap.sh`)
+and **other repos' cloud sessions** (the plugin marketplace). The third surface
+is the `@claude` **CI bot** running on *this* repo's PRs/issues
+(`.github/workflows/claude-bot.yml`).
+
+That bot runs `claude-code-action`, which does **not** auto-discover skills from
+`~/.claude` (the runner's home is fresh) or from a plugin unless it's installed
+— but it **does** load project skills from `.claude/skills/` in the checked-out
+repo. So `.claude/skills` is a symlink to the top-level `skills/`:
+
+```
+.claude/skills -> ../skills
+```
+
+That single symlink (no duplication; `skills/` stays the one source of truth)
+makes every skill available to the bot by bare name. Comment **`@claude ardi`**
+(or any other skill trigger) on a PR or issue and the bot can invoke the `ardi`
+skill, exactly like the local CLI does. New skills added under `skills/` are
+picked up automatically — nothing else to wire.
+
+> When ai-config itself is the open project locally, these also surface as
+> project skills (alongside the `~/.claude/skills` user copies); they resolve to
+> the same files, so it's idempotent.
+
 ## What's tracked
 
 - `skills/` — reusable workflow skills (`~/.claude/skills/`)
