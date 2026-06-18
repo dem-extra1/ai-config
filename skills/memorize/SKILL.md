@@ -1,44 +1,83 @@
 ---
 name: memorize
-description: "Add a fact or preference to persistent memory. Use when the user says 'memorize', 'remember that', 'add to memories', 'note that', or gives a directive that should persist across sessions."
+description: "Persist a fact or preference to memory that survives across sessions, machines, and agents — routed by relevance to project-specific or general scope. Use when the user says 'memorize', 'remember that …', '/remember', 'from now on …', 'always/never …', 'note that …', or 'add to memories'. (`remember` is a synonym.)"
 user-invocable: true
 allowed-tools:
   - Read
   - Write
   - Edit
+  - Bash
 ---
 
 # Memorize
 
-Lightweight single-fact persistence. Unlike `ums` (which does a full session
-review), this skill stores exactly what the user says — no scanning, no
-skill updates, no ai-config commits.
+Persist a single fact or preference so it survives across sessions, machines,
+and agents. **`remember` / `/remember` is a synonym for this skill** — same
+behavior; the wording the user happens to use doesn't change anything.
+
+Unlike `ums` (which reviews the whole session and may also update skill
+definitions), this stores exactly what the user says — no scanning, no skill
+updates. Memory files live in the ai-config repo, so memorize **commits and
+pushes** the one change; otherwise the note is lost when the session ends
+(ephemeral cloud containers are reclaimed) and never syncs elsewhere.
 
 ## When this fires
 
-- User says "memorize …", "remember that …", "add to memories: …",
-  "note that …", or similar
-- User gives a standing directive phrased as a preference ("always …",
-  "never …", "I prefer …", "from now on …")
+- "memorize …", "remember that …", "/remember …", "note that …",
+  "add to memories: …"
+- A standing directive phrased as a preference: "always …", "never …",
+  "I prefer …", "from now on …"
+
+## First: is it actually a memory?
+
+If the request is an **automated every-time action** ("after each commit run
+X", "whenever I edit Y do Z"), memory can't execute it — that needs a **hook**
+in `settings.json` / `settings.local.json` (use the `update-config` skill).
+Say so and route it there; don't store a note that will never fire.
 
 ## Procedure
 
 1. **Parse** the fact/preference from the user's message.
-2. **Choose scope**:
-   - If it's about the current repo/project → `/memories/repo/`
-   - If it's a personal preference or cross-project fact → `/memories/`
-   - If it's only relevant to this conversation → `/memories/session/`
-   - When ambiguous, default to `/memories/` (user-wide).
-3. **Choose file**: read the target directory listing first. Append to an
-   existing topical file if one fits; otherwise create a new file with a
-   descriptive name.
-4. **Write**: add a concise bullet point (one line preferred). Don't
-   duplicate — if the fact is already recorded, say so and skip.
-5. **Confirm**: tell the user what was stored and where (one sentence).
+2. **Choose scope by relevance**:
+   - **Project-specific** — a fact, convention, or gotcha tied to THIS repo
+     ("renders with renv via `R_LIBS_USER`") → `/memories/repo/<repo-name>.md`
+   - **General standing rule** — an always-apply working preference across ALL
+     repos ("always link PRs in tables", "use Pacific time") →
+     `~/.claude/CLAUDE.md` (it's loaded every session)
+   - **General reference fact** — a cross-project fact that only matters when
+     relevant ("gh opens a pager — pipe to cat") → a topical file in
+     `/memories/` (e.g. `tools.md`, `debugging.md`)
+   - **Conversation-only** → `/memories/session/`
+   - When ambiguous between project and general, judge by relevance; default
+     to general.
+3. **Choose file**: read the target's current contents first. Append to an
+   existing section/file if one fits; otherwise create a descriptively named
+   file. Don't duplicate — if it's already recorded, update in place rather
+   than stacking a second copy, and say so. Delete a memory that turns out
+   wrong instead of leaving a contradiction.
+4. **Write** a concise bullet (one line preferred), matching the file's voice;
+   include the *why* if it isn't obvious. Don't record what the repo already
+   documents (code structure, git history) — capture only the non-obvious.
+5. **Commit & push** the one change (skip for `/memories/session/` —
+   conversation-only notes shouldn't enter the shared repo). `CLAUDE.md` and
+   `memories/` are both symlinks into the ai-config repo:
+
+   ```bash
+   f="$(readlink -f ~/.claude/<path-you-wrote>)"   # real path inside the ai-config repo
+   repo="$(git -C "$(dirname "$f")" rev-parse --show-toplevel)"
+   git -C "$repo" add "$f" \
+     && git -C "$repo" commit -m "memorize: <one-line summary>" \
+     && git -C "$repo" push origin HEAD
+   ```
+
+   In an ephemeral cloud session the push is mandatory — an unpushed commit
+   dies with the container.
+6. **Confirm**: one sentence — what was stored, where, and that it was pushed.
 
 ## Don't
 
-- Don't run a full session review (that's `ums`).
-- Don't commit to ai-config (that's `ums`'s job at session end).
+- Don't run a full session review or touch skill files (that's `ums`).
+- Don't commit unrelated changes — stage only the file you wrote.
+- Don't push conversation-only (`/memories/session/`) notes to the shared repo.
 - Don't store secrets, tokens, or passwords.
 - Don't over-elaborate — one bullet per fact.
