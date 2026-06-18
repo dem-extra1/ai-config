@@ -17,9 +17,10 @@ behavior; the wording the user happens to use doesn't change anything.
 
 Unlike `ums` (which reviews the whole session and may also update skill
 definitions), this stores exactly what the user says — no scanning, no skill
-updates. Memory files live in the ai-config repo, so memorize **commits and
-pushes** the one change; otherwise the note is lost when the session ends
-(ephemeral cloud containers are reclaimed) and never syncs elsewhere.
+updates. Memory files — and `~/.claude/CLAUDE.md` — are symlinked into the
+ai-config repo, so memorize **commits and pushes** the one change; otherwise
+the note is lost when the session ends (ephemeral cloud containers are
+reclaimed) and never syncs elsewhere.
 
 ## When this fires
 
@@ -58,14 +59,18 @@ Say so and route it there; don't store a note that will never fire.
 4. **Write** a concise bullet (one line preferred), matching the file's voice;
    include the *why* if it isn't obvious. Don't record what the repo already
    documents (code structure, git history) — capture only the non-obvious.
-5. **Commit & push** the one change (skip for `/memories/session/` —
-   conversation-only notes shouldn't enter the shared repo). `CLAUDE.md` and
-   `memories/` are both symlinks into the ai-config repo:
+5. **Commit & push** the change so it persists. Skip *only* for
+   `/memories/session/` (conversation-only notes shouldn't enter the shared
+   repo); **everything else — including `~/.claude/CLAUDE.md` writes — gets
+   committed**. This assumes `bootstrap.sh` has symlinked `memories/` and
+   `CLAUDE.md` into the ai-config repo (the expected setup). Resolve the repo
+   from the `memories/` symlink and stage the file by its path *within* the
+   repo — use plain `readlink` (portable; BSD/macOS `readlink` rejects `-f`):
 
    ```bash
-   f="$(readlink -f ~/.claude/<path-you-wrote>)"   # real path inside the ai-config repo
-   repo="$(git -C "$(dirname "$f")" rev-parse --show-toplevel)"
-   git -C "$repo" add "$f" \
+   repo="$(dirname "$(readlink ~/.claude/memories)")"   # ai-config repo root
+   rel="CLAUDE.md"   # or memories/<file>.md, memories/repo/<repo-name>.md, …
+   git -C "$repo" add "$rel" \
      && git -C "$repo" commit -m "memorize: <one-line summary>" \
      && git -C "$repo" push origin HEAD
    ```
