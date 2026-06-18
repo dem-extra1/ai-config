@@ -124,6 +124,22 @@ For each round:
    "minor observation", "could improve", etc. "Looks good" / "no findings" /
    "approved" with no follow-on bullets is the bar.
 
+## Fix broken CI/workflows too
+
+If the PR's CI checks are failing (not just the review), investigate and fix
+them as part of the iterate loop — don't declare "clean" with red CI. This
+includes:
+
+- **Workflow syntax errors** — fix them in this repo.
+- **Upstream template bugs** — if the failure is in a reusable workflow from
+  HACtions or a GitHub Action, file an issue (or open a PR) upstream using
+  the `sup` skill, then either pin a working version or apply a local
+  workaround until the upstream fix lands.
+- **Flaky / infra failures** — retry once; if it persists, investigate root
+  cause.
+
+The goal is green CI + clean review, not just clean review.
+
 ## The bar for "clean"
 
 Don't stop at, or report, "ready to merge with one minor nit noted" /
