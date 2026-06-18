@@ -1,6 +1,6 @@
 ---
 name: ard
-description: "Address, Rebut, or Defer: respond to every review finding on a PR/MR with exactly one disposition. For each item a reviewer (human or bot) flags, choose one — fix it (Address), explain why it's correct as-is (Rebut), or file a follow-up issue (Defer). Silently ignoring a finding is never acceptable. Works on GitHub (gh) and GitLab (glab). Use after receiving a review, when asked to 'address reviews' / 'respond to the review', or as the inner loop of the iterate skill."
+description: "Address, Rebut, Defer, or Acknowledge: respond to every review comment on a PR/MR with exactly one disposition. For each item a reviewer (human or bot) raises, choose one — fix it (Address), explain why it's correct as-is (Rebut), file a follow-up issue (Defer), or acknowledge a no-change-requested observation (Acknowledge). Silently ignoring a comment is never acceptable. Works on GitHub (gh) and GitLab (glab). Use after receiving a review, when asked to 'address reviews' / 'respond to the review', or as the inner loop of the iterate skill."
 user-invocable: true
 allowed-tools:
   - Bash
@@ -11,23 +11,26 @@ allowed-tools:
 
 # ARD — Address, Rebut, or Defer
 
-Every review **finding** gets exactly one disposition: **A**, **R**, or **D**. Ignoring is not an option.
+Every review comment gets exactly one disposition: **A**, **R**, **D**, or **K**. Ignoring is not an option.
 
 ## What counts as a finding
 
-A *finding* is anything the reviewer requests or implies a change to — including items tagged "nit", "minor", "non-blocker", "optional", or "consider". All of these require a disposition.
+A *finding* is anything the reviewer requests or implies a change to — including items tagged "nit", "minor", "non-blocker", "optional", or "consider". All of these require **Address**, **Rebut**, or **Defer**.
 
-Pure praise or neutral observations with **no** requested change ("nice refactor", "TIL") are **not** findings. Don't give them an A/R/D row; acknowledge them in one line under the table if you like. This is the *only* thing that escapes A/R/D — and only because nothing is being asked.
+Pure praise or neutral observations with **no** requested change ("nice refactor", "TIL") still get a row — disposition **Acknowledge** — so the summary accounts for *every* comment the reviewer made and nothing reads as silently dropped.
 
-## The three dispositions
+## The four dispositions
 
 | Code | Meaning | Action required |
 |------|---------|-----------------|
 | **A** — Address | Valid and in-scope. | Fix it in this PR/MR and commit. |
 | **R** — Rebut | Incorrect, already handled, or a misunderstanding. | Explain *why*, citing concrete evidence (line, test, doc, spec). Specific enough that the reviewer can verify it without re-reading the whole PR. |
 | **D** — Defer | Valid but out of scope (new feature, broad refactor, needs design discussion). | File a follow-up issue (`gh issue create` / `glab issue create`), link it, and add it to the PR/MR's **Deferred / Out-of-Scope** section. |
+| **K** — Acknowledge | Praise or a neutral observation with no change requested. | Give it a row so it's accounted for; no code change, no rebuttal needed. Don't stretch this to dodge a real finding. |
 
 ### Decision order
+
+For anything that requests a change, choose among the first three (Acknowledge is only for no-ask comments):
 
 1. **Address** — the default. Most findings are 1–5 line fixes; if it takes under ~2 min, just fix it.
 2. **Rebut** — only when you're confident the reviewer is mistaken. A rebuttal that isn't falsifiable ("I think it's fine") is not a rebuttal.
@@ -92,6 +95,7 @@ Addressed findings from review of <commit-or-range>:
 | 1 | <summary> | ✅ Address | Fixed in <commit-sha> |
 | 2 | <summary> | 🔄 Rebut | <one-line reason> |
 | 3 | <summary> | 📌 Defer | <issue-link> |
+| 4 | <summary> | 👍 Acknowledge | <one-line thanks / note> |
 
 ### Rebuttal: Finding 2
 <full explanation with evidence>
@@ -105,8 +109,8 @@ Tell the user what you did and give a **clickable URL** to the PR/MR (and to the
 
 ## Rules
 
-- **Every finding appears in the table.** A flagged item with no row is an ignored item.
-- **Severity never exempts.** "Nit" / "optional" / "consider" still require A, R, or D.
+- **Every reviewer comment appears in the table.** Any item with no row reads as ignored — including positive observations, which get a 👍 Acknowledge row.
+- **Severity never exempts.** "Nit" / "optional" / "consider" still require A, R, or D — never K.
 - **Rebuttals must be falsifiable** — point to specific code, behavior, or documentation.
 - **Deferrals must be tracked.** A defer without a filed issue is just ignoring with extra words.
 - **Push before you post.** The reviewer should be able to verify Addressed fixes are on the branch.
