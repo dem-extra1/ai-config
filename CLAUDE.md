@@ -130,3 +130,14 @@ branch" button and preserves the PR history.
 If the merge has conflicts, resolve them, run the project's standard
 pre-commit checks (render / lint / spell / tests), commit, then push. Don't
 push a half-resolved merge.
+
+## Watch PRs you open by default
+
+After creating or opening a PR, **subscribe to its activity** (CI status +
+review comments) right away with `subscribe_pr_activity` — don't ask first.
+Watching is the default, not an opt-in. Keep the subscription alive until the
+PR is **merged or closed**, or until I explicitly tell you to stop (then
+`unsubscribe_pr_activity`). Because webhooks don't deliver CI *success*, new
+pushes, or merge-conflict transitions, schedule a periodic self check-in
+(e.g. `send_later`, ~1h out) to re-poll state and re-arm silently if nothing
+changed.
