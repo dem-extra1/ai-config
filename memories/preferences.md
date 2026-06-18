@@ -67,7 +67,7 @@
 - In R/Quarto/Rmd prose, prefer inline R expressions (`` `r ...` ``) over hard-coded
   numbers that came from the analysis (means, counts, p-values, sample sizes) so the
   text never goes stale on re-render. Hard-coded literals are fine for genuine constants
-  (a chosen threshold, a year). Example: ucdavis/bcs#191 review comment r3437005734.
+  (a chosen threshold, a year). Example: [ucdavis/bcs#191 review comment r3437005734](https://github.com/ucdavis/bcs/pull/191/changes#r3437005734).
 - Always look for opportunities to create new reusable skills from multi-step processes.
   When a workflow emerges that could be codified, proactively suggest creating a skill for it.
 - "slide <tag>" means force-move a floating Git tag to current main HEAD (delete + recreate + push).

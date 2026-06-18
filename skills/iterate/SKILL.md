@@ -49,7 +49,7 @@ For each round:
      sync) — do **NOT** also post `@claude review`. On workflows with
      `concurrency: cancel-in-progress` the two runs cancel each other and the
      latest commit ends up with no posted verdict. Only post `@claude review`
-     when **no code was pushed** this round (all Rebut/Defer). If a review gets
+     when **no fixes were pushed** this round. If a review gets
      canceled with no comment, dispatch a clean one:
      `gh workflow run claude-review.yml -f pr_number=<N>`.
    - Human reviewer: request one directly —

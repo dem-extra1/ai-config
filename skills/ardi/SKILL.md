@@ -44,9 +44,10 @@ finding → push → post summary → re-request review → repeat until clean.
      mention-triggered runs **cancel each other**, leaving the latest commit
      with a canceled, never-posted verdict. Just wait for the push-triggered
      review.
-   - **No code pushed** (all Rebut/Defer): the push won't trigger anything, so
-     you **must** explicitly re-request (post `@claude review`, or the forge's
-     equivalent). This is the only case where you post the mention.
+   - **No code pushed** (all Rebut/Defer): no push occurred, so nothing
+     auto-triggers — you **must** explicitly re-request (post `@claude review`,
+     or the forge's equivalent). This is the only case where you post the
+     mention.
    - **A review ends up canceled with no comment:** trigger one cleanly via
      `gh workflow run claude-review.yml -f pr_number=<N>` (input is
      `pr_number`) and don't push/comment again until it posts. Note: a review
