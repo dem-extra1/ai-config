@@ -51,41 +51,45 @@ for p in pipelines:
 " | cat
 ```
 
-2. **Cancel all but the newest running/pending pipeline:**
-
-Keep the **first** (newest) pipeline. Cancel any older ones that are `running` or `pending`:
+2. **Preview which pipelines would be canceled.** Keep the **first** (newest)
+   pipeline; everything older that's `running`/`pending`/`created` is a
+   cancel candidate. This step only *prints* — nothing is canceled yet:
 
 ```bash
 glab api "projects/$PROJECT_ID/pipelines?ref=$BRANCH&sort=desc&per_page=10" 2>&1 | \
   python3 -c "
 import json, sys
-pipelines = json.load(sys.stdin)
-# Filter to cancelable states
-active = [p for p in pipelines if p['status'] in ('running', 'pending', 'created')]
+active = [p for p in json.load(sys.stdin) if p['status'] in ('running', 'pending', 'created')]
 if len(active) <= 1:
-    print('Nothing to cancel — only one active pipeline.')
-    sys.exit(0)
-# Keep the newest, cancel the rest
-keep = active[0]
-print(f'Keeping pipeline #{keep[\"id\"]} ({keep[\"status\"]})')
+    print('Nothing to cancel — at most one active pipeline.'); sys.exit(0)
+print(f'Keeping newest: #{active[0][\"id\"]} ({active[0][\"status\"]})')
 for p in active[1:]:
-    print(f'Canceling pipeline #{p[\"id\"]} ({p[\"status\"]})')
-    # Print the cancel command
-    print(f'  -> glab api -X POST projects/$PROJECT_ID/pipelines/{p[\"id\"]}/cancel')
+    print(f'Would cancel:   #{p[\"id\"]} ({p[\"status\"]})')
 " | cat
 ```
 
-The step above is a **dry run** — it prints one ready-to-run `glab api -X POST
-.../cancel` line per superseded pipeline (with the real IDs already filled in).
-Review them, then run each printed command to actually cancel:
+3. **Execute the cancels.** Once the preview looks right, re-run the same query
+   and pipe the emitted `glab api` commands straight into a shell — the IDs are
+   filled in automatically, so there's nothing to copy-paste or substitute by
+   hand. `sh -x` echoes each command as it runs:
 
 ```bash
-# paste a printed line, e.g.:
-glab api -X POST "projects/$PROJECT_ID/pipelines/99/cancel" 2>&1 | \
-  python3 -c "import json,sys; print(json.load(sys.stdin).get('status','done'))" | cat
+glab api "projects/$PROJECT_ID/pipelines?ref=$BRANCH&sort=desc&per_page=10" 2>&1 | \
+  python3 -c "
+import json, sys
+active = [p for p in json.load(sys.stdin) if p['status'] in ('running', 'pending', 'created')]
+for p in active[1:]:
+    print(f'glab api -X POST projects/$PROJECT_ID/pipelines/{p[\"id\"]}/cancel')
+" | sh -x
 ```
 
-3. **For multi-branch cleanup** (e.g., after pushing fixes to multiple MR branches):
+> The preview (step 2) **is** the confirmation gate — eyeball it before running
+> step 3. To re-add an explicit prompt, drop `| sh -x` and pipe through
+> `while read c; do read -p \"run: $c ? \" a </dev/tty && [ \"\$a\" = y ] && eval \"\$c\"; done` instead.
+
+4. **For multi-branch cleanup** (e.g., after pushing fixes to multiple MR
+   branches), cancel superseded pipelines on each ref in one pass. Emit the
+   `glab api` commands and pipe to `sh -x` (same eval-able pattern as step 3):
 
 ```bash
 for BRANCH in branch1 branch2; do
@@ -93,16 +97,14 @@ for BRANCH in branch1 branch2; do
   glab api "projects/$PROJECT_ID/pipelines?ref=$BRANCH&sort=desc&per_page=5" 2>&1 | \
     python3 -c "
 import json, sys
-pipelines = json.load(sys.stdin)
-active = [p for p in pipelines if p['status'] in ('running', 'pending', 'created')]
-if len(active) <= 1:
-    print('  Nothing to cancel.')
-else:
-    for p in active[1:]:
-        print(f'  Canceling #{p[\"id\"]}')
-" | cat
+active = [p for p in json.load(sys.stdin) if p['status'] in ('running', 'pending', 'created')]
+for p in active[1:]:
+    print(f'glab api -X POST projects/$PROJECT_ID/pipelines/{p[\"id\"]}/cancel')
+" | sh -x
 done
 ```
+
+(Drop `| sh -x` → `| cat` to preview without canceling.)
 
 ## Notes
 
