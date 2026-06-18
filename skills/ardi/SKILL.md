@@ -44,6 +44,21 @@ finding → push → post summary → re-request review → repeat until clean.
 
 7. **Repeat from step 2** until the verdict has zero findings.
 
+## Fix broken CI/workflows too
+
+If the PR's CI checks are failing (not just the review), investigate and fix
+them as part of the ARDI loop — don't declare "clean" with red CI. This
+includes:
+
+- **Workflow syntax errors** — fix them in this repo.
+- **Upstream template bugs** — if the failure is in a reusable workflow from
+  HACtions or a GitHub Action, file an issue (or open a PR) upstream using
+  the `sup` skill, then either pin a working version or apply a local
+  workaround until the upstream fix lands.
+- **Flaky / infra failures** — retry once; if it persists, investigate root
+  cause.
+
+The goal is green CI + clean review, not just clean review.
 ## The bar
 
 Zero flagged items under any heading. "Looks good" / "no findings" / "approved"
