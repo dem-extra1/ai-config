@@ -4,8 +4,8 @@ description: >
   Audit the current codebase (or a specified scope) for opportunities to
   simplify, DRY, outsource to well-maintained external tools/packages, reduce
   maintenance burden, and improve clarity. Produces a prioritized list of
-  concrete refactoring suggestions. Use when asked to "tidy", "simplify",
-  "clean up", "DRY this out", or "what can we outsource/remove". Invoke
+  concrete refactoring suggestions. Use when asked to "tidy", "tidy up",
+  "DRY this out", or "what can we outsource/remove". Invoke
   explicitly with /tidy.
 user-invocable: true
 allowed-tools:
@@ -13,7 +13,8 @@ allowed-tools:
   - Read
   - Write
   - Edit
-  - Search
+  - Glob
+  - Grep
 ---
 
 # tidy
@@ -24,7 +25,7 @@ maintenance burden. Produce a **prioritized, actionable** list of suggestions
 
 ## When this fires
 
-- User says `/tidy`, "tidy up", "simplify", "DRY this", "what can we remove",
+- User says `/tidy`, "tidy up", "DRY this", "what can we remove",
   "what can we outsource", or similar.
 - After a large feature lands and the user wants a cleanup pass.
 - When reviewing a repo for the first time and looking for quick wins.

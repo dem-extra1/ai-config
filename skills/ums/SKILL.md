@@ -54,7 +54,7 @@ reflect, and persist.
    with `readlink`). After editing anything in that repo:
    ```bash
    cd "$(dirname "$(readlink ~/.claude/skills)")"
-   git add -A && git commit -m "ums: <brief summary>" && git push
+   git add -A && git commit -m "ums: <brief summary>" && git push origin HEAD
    ```
    Never leave ANY changes (skills, memories, etc.) as local-only uncommitted edits.
 

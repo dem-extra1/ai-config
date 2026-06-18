@@ -10,8 +10,8 @@ by `bootstrap.sh`.
 ## Setup on a new machine
 
 ```sh
-git clone https://github.com/d-morrison/ai-config.git ~/Documents/GitHub/ai-config
-bash ~/Documents/GitHub/ai-config/bootstrap.sh
+git clone https://github.com/d-morrison/ai-config.git ~/ai-config
+bash ~/ai-config/bootstrap.sh
 ```
 
 Rerun `bootstrap.sh` any time a new top-level dir is added to the repo.
