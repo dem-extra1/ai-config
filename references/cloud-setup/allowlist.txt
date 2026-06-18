@@ -1,0 +1,38 @@
+# Recommended egress allowlist for Claude Code on the web
+# ---------------------------------------------------------------------------
+# Paste these hosts into the environment's custom network allowlist (claude.ai
+# web UI) when the environment can't use the 'Full' network policy. This is the
+# paste-ready form of the per-host allowlist documented in cloud-setup.sh's
+# header; it covers the R / Quarto / TinyTeX / Julia toolchain that script
+# installs, plus the per-session renv::restore() and Julia Pkg.instantiate().
+#
+# One host per line. If your allowlist parser rejects '#' comments or blank
+# lines, strip them — the bare hostnames are all that's required.
+
+# --- R / CRAN ---
+cloud.r-project.org           # renv bootstrap/fallback (often already allowed)
+*.r-project.org               # CRAN mirrors
+packagemanager.posit.co       # Posit Package Manager (renv.lock's repo)
+*.posit.co                    # Posit PPM CDN / redirects
+rspm-sync.rstudio.com         # PPM binary sync
+api.r-hub.io                  # R-hub system-requirements lookups
+bioconductor.org              # Bioconductor-tagged packages in renv.lock
+
+# --- GitHub (Quarto .deb, TinyTeX, GitHub-sourced R packages) ---
+github.com                    # Quarto .deb + GitHub-sourced R pkgs
+api.github.com                # release lookups (set GH_TOKEN to avoid rate limits)
+codeload.github.com           # source tarball downloads
+release-assets.githubusercontent.com   # GitHub release asset downloads
+objects.githubusercontent.com           # GitHub release / object storage
+
+# --- Quarto / LaTeX ---
+quarto.org                    # optional: the Quarto .deb itself comes from github.com
+ctan.math.illinois.edu        # one pinned CTAN mirror for tlmgr (TinyTeX) installs
+
+# --- Julia ---
+julialang-s3.julialang.org    # prebuilt Linux Julia binaries (the ONLY host for these)
+pkg.julialang.org             # Julia package server (Pkg.instantiate / precompile)
+# The two below are only needed if you install Julia via juliaup instead of the
+# curl+tarball method in cloud-setup.sh (juliaup can fail behind a TLS proxy):
+install.julialang.org         # juliaup installer script
+julialang.org                 # juliaup version-scheme / downloads fallback

@@ -31,6 +31,9 @@ applied to the R/Quarto/Julia toolchain.
 
 - [`cloud-setup.sh`](./cloud-setup.sh) — the revised script, with every change
   marked inline as `# [review]` and summarized in a header block.
+- [`allowlist.txt`](./allowlist.txt) — the paste-ready egress allowlist for the
+  environment's custom network policy (the hostnames documented in
+  `cloud-setup.sh`'s header, one per line with rationale).
 
 ## Review summary
 
