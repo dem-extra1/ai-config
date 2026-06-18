@@ -68,16 +68,18 @@ Say so and route it there; don't store a note that will never fire.
    repo — use plain `readlink` (portable; BSD/macOS `readlink` rejects `-f`):
 
    ```bash
-   [ -L ~/.claude/memories ] || { echo "~/.claude/memories isn't a symlink — run bootstrap.sh first"; return 1; }
+   [ -L ~/.claude/memories ] || { echo "~/.claude/memories isn't a symlink — run bootstrap.sh first"; exit 1; }
    repo="$(dirname "$(readlink ~/.claude/memories)")"   # ai-config repo root
    rel="CLAUDE.md"   # or memories/<file>.md, memories/repo/<repo-name>.md, …
    git -C "$repo" add "$rel" \
      && git -C "$repo" commit -m "memorize: <one-line summary>" \
-     && git -C "$repo" push origin HEAD
+     && git -C "$repo" push origin HEAD   # current branch; not HEAD:main — that would push a feature branch's commits onto main
    ```
 
-   In an ephemeral cloud session the push is mandatory — an unpushed commit
-   dies with the container.
+   The push targets the ai-config repo's **current branch**, so run memorize
+   from a checkout on `main` (the normal case) — that's where shared memory
+   belongs. In an ephemeral cloud session the push is mandatory: an unpushed
+   commit dies with the container.
 6. **Confirm**: one sentence — what was stored, where, and that it was pushed.
 
 ## Don't
