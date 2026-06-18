@@ -77,7 +77,9 @@ for p in active[1:]:
 if ! CANCEL_CMDS=$(glab api "projects/$PROJECT_ID/pipelines?ref=$BRANCH&sort=desc&per_page=10" | \
   python3 -c "
 import json, sys
-active = [p for p in json.load(sys.stdin) if p['status'] in ('running', 'pending', 'created')]
+try: pipelines = json.load(sys.stdin)
+except json.JSONDecodeError: sys.exit(1)   # glab error already on stderr; don't add a traceback
+active = [p for p in pipelines if p['status'] in ('running', 'pending', 'created')]
 for p in active[1:]:
     print(f'glab api -X POST projects/$PROJECT_ID/pipelines/{p[\"id\"]}/cancel')
 "); then
@@ -87,7 +89,7 @@ elif [ -z "$CANCEL_CMDS" ]; then
 else
   echo "$CANCEL_CMDS" | while read -r cmd; do
     echo "+ $cmd"
-    eval "$cmd" 2>&1 | python3 -c "import json,sys; print('  ->', json.load(sys.stdin).get('status','?'))" \
+    eval "$cmd" 2>&1 | python3 -c "import json,sys; print('  ->', json.load(sys.stdin).get('status','?'))" 2>/dev/null \
       || echo "  -> FAILED (cancel did not return valid JSON)"
   done
 fi
@@ -102,8 +104,11 @@ integer pipeline `id` straight from the API — no user-controlled or
 free-text fields are evaled.
 
 (The listing calls don't redirect `2>&1` into Python: on an API error `glab`
-writes to stderr and Python sees empty stdin, so the failure shows up directly
-rather than being parsed as pipeline JSON.)
+writes to stderr and Python sees empty stdin. The `try/except json.JSONDecodeError:
+sys.exit(1)` then exits cleanly — no Python traceback — so `glab`'s own stderr
+message is the sole diagnostic, and the non-zero exit drives the `if !` branch
+to "Pipeline query failed". The `eval`-loop status parse is likewise wrapped
+with `2>/dev/null` so a non-JSON cancel response surfaces only as `FAILED`.)
 
 > The preview (step 2) **is** the confirmation gate — eyeball it before running
 > step 3. For a per-command y/n prompt instead, replace the loop body with
@@ -119,7 +124,9 @@ for BRANCH in branch1 branch2; do
   if ! CANCEL_CMDS=$(glab api "projects/$PROJECT_ID/pipelines?ref=$BRANCH&sort=desc&per_page=10" | \
     python3 -c "
 import json, sys
-active = [p for p in json.load(sys.stdin) if p['status'] in ('running', 'pending', 'created')]
+try: pipelines = json.load(sys.stdin)
+except json.JSONDecodeError: sys.exit(1)   # glab error already on stderr; don't add a traceback
+active = [p for p in pipelines if p['status'] in ('running', 'pending', 'created')]
 for p in active[1:]:
     print(f'glab api -X POST projects/$PROJECT_ID/pipelines/{p[\"id\"]}/cancel')
 "); then
@@ -130,7 +137,7 @@ for p in active[1:]:
   else
     echo "$CANCEL_CMDS" | while read -r cmd; do
       echo "+ $cmd"
-      eval "$cmd" 2>&1 | python3 -c "import json,sys; print('  ->', json.load(sys.stdin).get('status','?'))" \
+      eval "$cmd" 2>&1 | python3 -c "import json,sys; print('  ->', json.load(sys.stdin).get('status','?'))" 2>/dev/null \
         || echo "  -> FAILED (cancel did not return valid JSON)"
     done
   fi
