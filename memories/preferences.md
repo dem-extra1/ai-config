@@ -23,6 +23,7 @@
   any recurring false positives.
 - When noticing potential improvements to the codebase while working, proactively suggest them
   (don't wait to be asked). The user wants to hear about improvements as they come up.
+- Always run /ums (Update Memories and Skills) after finishing a task — don't wait to be asked.
 - Keep it simple. Don't over-explain or ask permission for straightforward fixes — just do them.
 - When finishing work on an MR/PR (clean review, ready to merge, etc.), always provide a
   clickable link to the MR/PR in the chat message.
@@ -41,6 +42,8 @@
   - Pipelines: `[#3330](https://host/project/-/pipelines/3330)`
   - Jobs: `[job 11056](https://host/project/-/jobs/11056)`
   - Commits: `[320d7ad](https://host/project/-/commit/320d7ad)`
+- When stopping work on an MR/PR (end of conversation, pausing, handing off), always post
+  the MR/PR link so the user can click through immediately.
 - When the user provides general guidance or a new preference, always update BOTH the
   relevant skills AND `/memories/preferences.md`. Skills encode the behavior; preferences
   ensure it persists and is visible across all contexts.

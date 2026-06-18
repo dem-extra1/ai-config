@@ -11,7 +11,16 @@
 - No `GITLAB_TOKEN` env var — glab uses its own config at `~/Library/Application Support/glab-cli/config.yml`
 - Key commands:
   - `glab ci list` — list pipelines
-  - `glab ci view <id>` — view pipeline/job details
+  - `glab ci get --pipeline-id <ID>` — view pipeline details (non-interactive)
+  - `glab ci create --branch <branch>` — trigger a NEW pipeline (picks up upstream template changes)
+  - `glab ci retry --branch <branch>` — retries the EXISTING pipeline (does NOT pick up template changes)
+  - `glab ci view <id>` — requires TTY; use `glab ci get` or `glab api .../trace` instead
+  - `glab api "/projects/<ID>/jobs/<JOB_ID>/trace"` — get job log non-interactively
   - `glab mr note create <MR_IID> --message "..."` — post MR comment
   - `glab mr list` — list merge requests
   - `glab mr view <MR_IID>` — view MR details
+- GitLab CI job token allowlist:
+  - When repo A's CI job needs API access to repo B, repo B must add A to its allowlist
+  - `glab api --method POST "/projects/<TARGET_ID>/job_token_scope/allowlist" -f "target_project_id=<SOURCE_ID>"`
+  - `include:` (for CI templates) works independently of the API allowlist
+  - Check existing: `glab api "/projects/<ID>/job_token_scope/allowlist"`
