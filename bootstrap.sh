@@ -90,26 +90,7 @@ if [ -d "$SCRIPT_DIR/memories" ] && [ -d "$COPILOT_MEMORY_DIR" ]; then
   printf '\n--- VS Code Copilot memories ---\n'
   for src in "$SCRIPT_DIR"/memories/*.md; do
     [ -f "$src" ] || continue
-    fname="$(basename "$src")"
-    dest="$COPILOT_MEMORY_DIR/$fname"
-
-    if [ -L "$dest" ]; then
-      current="$(readlink "$dest")"
-      if [ "$current" = "$src" ]; then
-        printf 'ok    memories/%s (already linked)\n' "$fname"
-      else
-        printf 'skip  memories/%s (symlink points elsewhere: %s)\n' "$fname" "$current"
-      fi
-      continue
-    fi
-
-    if [ -e "$dest" ]; then
-      printf 'skip  memories/%s (real file exists — move it, then rerun)\n' "$fname"
-      continue
-    fi
-
-    ln -s "$src" "$dest"
-    printf 'link  memories/%s -> %s\n' "$fname" "$src"
+    link_one "$src" "$COPILOT_MEMORY_DIR/$(basename "$src")"
   done
 else
   printf '\nskip  memories/ (dir not found or Copilot memory dir missing)\n'
