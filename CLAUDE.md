@@ -118,15 +118,17 @@ A PR/MR is **fully clean** when **both** of these hold:
    the reviewer did *not* re-raise it on the next round. A rebuttal the
    reviewer still disputes does **not** count as clean.
 
-**Threads:** at fully-clean, **every** review thread is resolved **except
-two** — the reviewer's final all-clear comment and your final reply
-acknowledging it.
+**Threads:** at fully-clean, every **inline** review thread is resolved, and
+the only conversation left open is the final all-clear exchange — the
+reviewer's all-clear comment and your reply to it. (The all-clear is usually a
+top-level PR comment, not an inline thread.)
 
 **Deadlock → escalate to a human.** If you and the reviewer(s) can't reach
 consensus on an item (a rebuttal was exchanged and neither side is budging),
-don't loop forever and don't unilaterally override the reviewer — turn to a
-**human reviewer** (request `d-morrison`) for the final decision, and surface
-the open item to me.
+don't loop forever and don't unilaterally override the reviewer — request a
+**human reviewer** (`d-morrison`) via the `request-pr-review` skill (or
+`gh pr edit <N> --add-reviewer d-morrison`), `@`-mention them in a comment
+summarizing the impasse, and surface the open item to me.
 
 ## Always run ARDI on PRs you touch
 
@@ -157,8 +159,9 @@ Then trigger another `@claude review` (or the equivalent) and repeat until the
 PR is **fully clean** (see *What "fully clean" means* above) — zero flagged
 items under any heading, no "non-blocking", "harmless", "minor observation",
 "could improve", etc. sections. "Looks good" / "no findings" / "approved" with
-no follow-on bullets is the bar. Resolve every review thread along the way,
-leaving only the final all-clear and your reply to it.
+no follow-on bullets is the bar. Resolve every inline review thread along the
+way, leaving only the final all-clear exchange (the reviewer's comment and your
+reply).
 
 Do **not** report "ready to merge with one minor nit noted" / "harmless
 as-is" / "can address if you want" — that hedging just pushes triage back to
@@ -166,7 +169,9 @@ the user.
 
 If you and the reviewer reach an impasse on an item (your rebuttal didn't
 convince them and you're not convinced by their re-raise), escalate to a
-**human reviewer** (`d-morrison`) for the final call rather than looping.
+**human reviewer** — request `d-morrison` via the `request-pr-review` skill (or
+`gh pr edit <N> --add-reviewer d-morrison`) and `@`-mention them with the
+impasse — for the final call rather than looping.
 Likewise, if after 3–4 rounds the reviewer keeps generating new nits each cycle
 (asymptotic noise), surface that to the user and ask whether to keep going or
 accept the current state.

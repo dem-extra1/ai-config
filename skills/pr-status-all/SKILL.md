@@ -90,8 +90,9 @@ Below the table, list each PR's open findings briefly (or "none"), and call out
 anything needing action: branches behind main, failing CI, drafts, or reviews
 that returned `null`. Do **not** label a PR "ready to merge" unless it is
 **fully clean** — its review is genuinely clean *and* all CI workflows are
-green *and* it's not behind main *and* every review thread is resolved (bar the
-final all-clear and your reply). Never hedge with "ready except for one nit."
+green *and* it's not behind main *and* every inline review thread is resolved
+(the only open conversation being the final all-clear and your reply). Never
+hedge with "ready except for one nit."
 
 ## Notes
 

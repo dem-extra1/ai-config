@@ -19,11 +19,12 @@
   clean — no nits, and every item not directly Addressed is either Deferred to a tracked
   issue or Rebutted with a rebuttal that actually CONVINCED the reviewer (they didn't
   re-raise it). A rebuttal the reviewer still disputes does NOT count as clean. At
-  fully-clean, every review thread is resolved EXCEPT two: the reviewer's final all-clear
-  and your reply to it.
+  fully-clean, every INLINE review thread is resolved, and the only open conversation is
+  the final all-clear exchange (the reviewer's all-clear comment and your reply to it).
 - If you and the reviewer(s) can't reach consensus on an item (rebuttal exchanged, neither
-  side budging), escalate to a HUMAN reviewer (`d-morrison`) for the final decision — don't
-  loop forever and don't unilaterally override the reviewer.
+  side budging), escalate to a HUMAN reviewer for the final decision — request `d-morrison`
+  via the `request-pr-review` skill (or `gh pr edit <N> --add-reviewer d-morrison`) and
+  `@`-mention them with the impasse. Don't loop forever and don't unilaterally override.
 - After creating a PR in a remote/web session (where PR-activity subscription is
   available), always subscribe to its CI/review activity (`subscribe_pr_activity`)
   and follow through — autofix CI failures and address review comments per the

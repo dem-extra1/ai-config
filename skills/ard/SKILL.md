@@ -145,19 +145,26 @@ glab api -X PUT "projects/:id/merge_requests/<N>/discussions/<discussion_id>?res
   settled once it **convinces the reviewer** — i.e. they don't re-raise it on
   the next round. While that's still in question, **leave the thread open**:
   resolve a bot's thread once it drops the item, and leave a human's thread
-  open if they may want to respond. If you and the reviewer reach an impasse
-  (your rebuttal didn't convince them, their re-raise didn't convince you),
-  **escalate to a human reviewer** (`d-morrison`) for the final decision rather
-  than resolving unilaterally or looping forever.
+  open if they may want to respond. Resolving on acceptance happens a round
+  *later* than the rebuttal, so it's easy to forget — **at the start of each
+  new round, first sweep your still-open rebuttal threads and resolve any the
+  latest review didn't re-raise**, before dispositioning the new findings. If
+  you and the reviewer reach an impasse (your rebuttal didn't convince them,
+  their re-raise didn't convince you), **escalate to a human reviewer** —
+  request `d-morrison` via the `request-pr-review` skill (or
+  `gh pr edit <N> --add-reviewer d-morrison`) and `@`-mention them with the
+  impasse — rather than resolving unilaterally or looping forever.
 
 Don't resolve a thread you haven't replied to. Every inline comment ends with
 both a reply and (where appropriate) a resolution — silence on a thread reads as
 ignored, exactly the failure ARD exists to prevent.
 
-**End-state (fully clean):** when the PR/MR is fully clean, **every** review
-thread is resolved **except two** — the reviewer's final all-clear comment and
-your reply acknowledging it. A leftover open thread (an unaccepted rebuttal, an
-un-resolved Address) means you're not clean yet.
+**End-state (fully clean):** when the PR/MR is fully clean, **every inline
+review thread is resolved**, and the only conversation left open is the final
+all-clear exchange — the reviewer's all-clear comment (usually a top-level PR
+comment, not an inline thread) and your reply to it. A leftover open inline
+thread (an unaccepted rebuttal, an un-resolved Address) means you're not clean
+yet.
 
 ### 5. Report back with a link
 
@@ -183,9 +190,10 @@ Inside the `iterate` loop:
 5. Re-request review (iterate step 3) — **even if this round was Rebut/Defer only**, so the reviewer re-evaluates.
 
 The loop continues until the PR/MR is **fully clean** — zero findings, all CI
-workflows green, and every review thread resolved except the reviewer's final
-all-clear and your reply to it. A rebuttal counts only once it convinces the
-reviewer; on an impasse, escalate to a human reviewer (`d-morrison`).
+workflows green, and every inline review thread resolved (the only open
+conversation being the final all-clear exchange — the reviewer's all-clear and
+your reply to it). A rebuttal counts only once it convinces the reviewer; on an
+impasse, escalate to a human reviewer (`d-morrison`).
 
 ## Edge cases
 
