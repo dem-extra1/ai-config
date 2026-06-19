@@ -54,10 +54,13 @@ gh issue list --state all  --search "<keywords>" --limit 10 \
   --json number,title,state,url | cat
 
 # GitLab
-glab issue list --search "<keywords>" 2>&1 | cat
+glab issue list --search "<keywords>" --per-page=20 2>&1 | cat
 ```
 
-- **Open match** → hand off to `gi` on that issue (skip to step 4).
+- **Open match** → an issue already exists, so this is just `gi` on that
+  number: invoke the `gi` skill from its claim step onward (claim → check
+  history → branch → implement → PR → ARDI). Skip the rest of `st` — you don't
+  need to file anything.
 - **Closed match** → surface it ("looks like #N already covered this and was
   closed") and confirm with the user before re-doing the work.
 
@@ -102,8 +105,14 @@ git checkout -b <type>/<slug> origin/main   # fix/ feat/ docs/ refactor/
 
 - Implement (code, tests, docs), run the repo's standard checks, commit
   referencing the issue (`fix: … (closes #N)`).
-- Push, open the PR with `Closes #N` in the body, request `d-morrison` as
-  reviewer (`request-pr-review`).
+- Push and open the PR with `Closes #N` in the body, then request `d-morrison`
+  as reviewer (`request-pr-review`):
+  ```bash
+  git push -u origin <type>/<slug>
+  gh pr create --title "<title>" --body "Closes #<N>
+
+  <what was done and why>"
+  ```
 - **ARDI** the PR to a clean verdict (`ardi`). Don't merge unless asked.
 
 ### 6. Report
