@@ -100,3 +100,6 @@
   Common for repos with floating major-version tags that consumers reference.
 
 - "dew it" means "do it".
+- After implementing a feature or fix, ALWAYS commit and push immediately — don't wait
+  for the user to ask "why haven't you pushed?" The implementation isn't done until the
+  code is committed, pushed, and (if applicable) an MR is opened.
