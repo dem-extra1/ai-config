@@ -29,7 +29,7 @@ Prune in both places — they accumulate junk independently:
 - **Local** branches — branches that linger in your checkout after their PR
   merged, or whose upstream remote was deleted (`[gone]`). The remote pass
   alone won't catch a local branch whose remote is already gone, so there's a
-  dedicated local pass (step 9).
+  dedicated local pass (step 8).
 
 ## Definitions
 
@@ -196,8 +196,9 @@ current branch):
 #### a. Merged into main → delete
 
 ```bash
-git branch --merged main | grep -vE '^\*|main|master'
-# each listed branch is fully merged into local main
+git branch --merged origin/main | grep -vE '^\*|main|master'
+# Compare against origin/main (just fetched), NOT local `main` — your local main
+# may be behind, which would hide branches that are actually merged.
 git branch -d <branch>          # -d refuses if NOT actually merged — a safety net
 ```
 
@@ -213,10 +214,14 @@ git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads \
   | grep '\[gone\]'
 ```
 
-For each, confirm the PR actually merged before deleting (never assume):
+For each, confirm the PR/MR actually merged before deleting (never assume):
 
 ```bash
+# GitHub
 gh pr list --head <branch> --state merged --json number,mergedAt | cat
+
+# GitLab
+glab mr list --source-branch=<branch> --state merged 2>&1 | cat
 ```
 
 - PR merged → `git branch -D <branch>` is acceptable here (the work landed via
@@ -236,8 +241,11 @@ Report these as "local-only, unpushed" and ask before doing anything — they ma
 be in-progress work that hasn't been pushed yet. Don't delete without
 confirmation.
 
-Present local deletions in the same dry-run plan (step 4) and wait for
-confirmation, exactly as for remote branches.
+Apply the same dry-run discipline to local deletions as step 4 does for remote
+branches — **no silent local deletions**. If you're doing a full local+remote
+sweep, fold these local rows into the step-4 plan and present them together; if
+you're running the local pass on its own, present a standalone local plan here
+and wait for confirmation before deleting anything.
 
 ### 9. Report
 
