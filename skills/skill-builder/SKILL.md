@@ -30,7 +30,7 @@ Rule out extending an existing skill *before* scaffolding anything:
 1. **Search the live skills** for something that already owns (or is adjacent
    to) this concern:
    ```bash
-   cd "$(dirname "$(readlink ~/.claude/skills)")"   # the ai-config repo
+   cd "$(git -C ~/.claude/skills rev-parse --show-toplevel)"   # the ai-config repo
    ls skills/
    grep -ril "<keywords>" skills/*/SKILL.md
    ```
