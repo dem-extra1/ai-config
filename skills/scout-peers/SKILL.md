@@ -66,7 +66,7 @@ misses. Dedupe into a flat list of repo URLs, then bucket them:
 
 ### 3. Fan out research agents (parallel)
 
-Spawn subagents (Task/Agent) — one per small bucket of 1–4 repos — so the reads
+Spawn subagents (Agent) — one per small bucket of 1–4 repos — so the reads
 run concurrently. Give every agent the **same reference profile** plus this
 fixed reporting contract:
 
