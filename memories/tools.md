@@ -4,6 +4,19 @@
 - `gh` opens a pager (alternate buffer) that hangs the agent terminal.
 - Always disable it: pipe `| cat` or set `GH_PAGER=cat` (e.g. `gh pr view 116 | cat`).
 
+## GitHub MCP tools (Claude Code remote/web sessions)
+- In remote/web sessions the authenticated GitHub identity is the repo owner
+  (`d-morrison`), so requesting `d-morrison` as a PR reviewer fails with
+  `422 Review cannot be requested from pull request author`. Harmless — the PR
+  is still created; the reviewer just isn't added. Don't treat the 422 as a
+  failure to retry (it's expected per the standing request-pr-review rule when
+  the author == the requested reviewer).
+- `gh` is NOT available in these sessions — use the `mcp__github__*` tools for
+  all GitHub interactions (PRs, issues, comments, CI status, reviews).
+- Webhook PR-activity events cover comments/reviews/CI *failures* but NOT CI
+  *success*, new pushes, or merge-conflict transitions — don't rely on events
+  alone to know a PR went green or merged; re-check explicitly.
+
 ## Git tags (force-move / slide)
 - To move a tag to a new commit: `git tag -d <tag> && git tag <tag> <target> && git push origin :refs/tags/<tag> && git push origin <tag>`
 - Can't use `git push --force origin <tag>` on some GitLab instances (protected tags). The delete+recreate pattern always works.
