@@ -50,26 +50,39 @@ reflect, and persist.
      the skill next time would avoid the mistake
 
 4. **Commit and push ALL ai-config changes — via a branch + PR, not direct to
-   `main`.** Skills AND memory files both live in the ai-config repo
-   (`~/.claude/skills/` → discover actual path with `readlink`). Never leave
-   ANY changes (skills, memories, etc.) as local-only uncommitted edits. Run
-   **one** of the two paths below — not both:
+   `main`.** Skills AND memory files both live in the ai-config repo. Discover
+   its path with `git -C ~/.claude/skills rev-parse --show-toplevel` (portable
+   across macOS/Linux; the older `dirname "$(readlink …)"` resolves only one
+   symlink hop). Never leave ANY changes (skills, memories, etc.) as local-only
+   uncommitted edits. Run **one** of the two paths below — not both:
+
+   **Stage only the files you actually edited — NEVER `git add -A`.** The
+   working tree often holds unrelated in-flight edits (the user's own UMS
+   commits, another skill being drafted); `git add -A` sweeps those into your
+   commit and onto your PR, where they bloat the review and extend the cycle.
+   List the specific paths instead, or `git add -p`.
 
    *Already on the open PR's branch* (e.g. mid-ARDI): commit + push to it.
    ```bash
-   cd "$(dirname "$(readlink ~/.claude/skills)")"
-   git add -A && git commit -m "ums: <brief summary>"
+   cd "$(git -C ~/.claude/skills rev-parse --show-toplevel)"
+   git add skills/<name>/SKILL.md memories/<file>.md   # the files you touched
+   git commit -m "ums: <brief summary>"
    git push origin HEAD
    ```
 
    *No PR yet:* branch off main first — a direct-to-main push is denied by
    auto-mode and bypasses review.
    ```bash
-   cd "$(dirname "$(readlink ~/.claude/skills)")"
+   cd "$(git -C ~/.claude/skills rev-parse --show-toplevel)"
    git fetch origin main && git checkout -b ums-<topic> origin/main
-   git add -A && git commit -m "ums: <brief summary>"
+   git add skills/<name>/SKILL.md memories/<file>.md   # the files you touched
+   git commit -m "ums: <brief summary>"
    git push -u origin HEAD && gh pr create --fill   # then request d-morrison as reviewer
    ```
+   **Before committing, `git status` to confirm only your intended files are
+   staged** — if something unexpected is there, the working tree had in-flight
+   work; unstage it rather than bundling it.
+
    **CAUTION:** if a compound `add && commit && push` is **denied**, *nothing*
    was committed — verify with `git status` / `git log` before any `git reset
    --hard`, or you'll silently discard the still-uncommitted edits.
@@ -108,3 +121,5 @@ record-as-you-go, or when the user wants to ensure nothing was missed.
   ("always poll for new review after pushing — check commit SHA matches")
 - ❌ Skipping the "check existing notes" step and creating duplicates
 - ❌ Updating only preferences when a skill also needs the fix
+- ❌ `git add -A` — it sweeps unrelated in-flight edits (the user's work, other
+  draft skills) into your commit/PR. Stage the specific files you touched.

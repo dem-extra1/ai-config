@@ -72,6 +72,13 @@
   and push everything to origin (on the current branch if a PR is already open, or
   create a new branch + PR if the change is out of scope). Never leave ANY changes in
   ai-config as local-only uncommitted edits — including memory files.
+- When committing, stage the SPECIFIC files you touched — NEVER `git add -A`. The working
+  tree often holds unrelated in-flight edits (the user's own UMS/skill commits, another
+  draft); `git add -A` silently sweeps those into your commit and onto your PR, bloating the
+  review and extending the cycle. List paths explicitly (or `git add -p`), and `git status`
+  before committing to confirm only intended files are staged. (Learned the hard way: a
+  `git add -A` swept the user's `scout-peers` skill into an unrelated `/prune` PR, adding
+  several extra review rounds.)
 - When creating a new acronym/short-name skill (e.g., `gi`, `sup`, `ums`), always also
   create a spelled-out alias skill (e.g., `grab-issue`, `send-upstream`,
   `update-memories-and-skills`) that points to the canonical file.
