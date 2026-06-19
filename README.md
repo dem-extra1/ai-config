@@ -16,6 +16,18 @@ bash ~/ai-config/bootstrap.sh
 
 Rerun `bootstrap.sh` any time a new top-level dir is added to the repo.
 
+### Verify the install
+
+After bootstrapping, confirm the symlinks resolved and the skills are visible:
+
+```sh
+ls -l ~/.claude/skills ~/.claude/commands   # should point back into this repo
+scripts/inventory.sh                         # live counts of skills/commands/docs
+```
+
+In a Claude Code session, type `/` and confirm the skills appear (e.g.
+`/scout-peers`, `/ardi`).
+
 ## Claude Code on the web
 
 In cloud (web) sessions you can't run `bootstrap.sh` by hand, and the
@@ -25,6 +37,13 @@ out — so it can't reference `bootstrap.sh` either. Instead, the committed
 runs `bootstrap.sh` once the repo is on disk, symlinking `skills/` and
 `commands/` into `~/.claude/`. The hook is a no-op outside remote sessions
 (`CLAUDE_CODE_REMOTE`) and idempotent, so local machines are unaffected.
+
+The same hook also installs **Julia** (via `juliaup`) on the first session
+start, since the base web image ships none. The install is guarded (a no-op
+once Julia is present) and non-fatal — it only succeeds if the environment's
+network policy allowlists the Julia download hosts. See
+[`docs/julia-setup.md`](docs/julia-setup.md) for the allowlist and a
+build-time alternative.
 
 ## Use these skills in another repo's web sessions (plugin marketplace)
 
@@ -72,11 +91,86 @@ session (or prefix with `claude ` to run them in a terminal):
 No `version` is pinned, so every commit to this repo counts as a new version —
 sessions with marketplace auto-update pick up the latest automatically.
 
+## Use these skills with this repo's own `@claude` bot
+
+The two mechanisms above cover the **CLI** (`~/.claude/skills` via `bootstrap.sh`)
+and **other repos' cloud sessions** (the plugin marketplace). The third surface
+is the `@claude` **CI bot** running on *this* repo's PRs/issues
+(`.github/workflows/claude-bot.yml`).
+
+That bot runs `claude-code-action`, which does **not** auto-discover skills from
+`~/.claude` (the runner's home is fresh) or from a plugin unless it's installed.
+It *does* load **project** skills from `.claude/skills/` in the checked-out
+repo.
+
+The `.claude/skills → ../skills` symlink is **committed** to this repo. It
+works via a subtle two-step mechanism:
+
+1. `claude-code-action` has a security feature called `restoreConfigFromBase`
+   that, for every PR, restores `.claude/` from the **base branch** (`main`)
+   using `git checkout origin/main -- .claude`. This prevents malicious PR
+   branches from injecting hooks or settings.
+2. Because `.claude/skills` is committed to `main`, `restoreConfigFromBase`
+   always restores the symlink — even if the PR branch doesn't have it.
+3. `git checkout origin/main -- .claude` correctly materializes the symlink on
+   disk (unlike `gh pr checkout`, which dropped it due to `core.symlinks`
+   handling — a separate failure mode that was the original blocker).
+
+Once the symlink is in place every top-level skill becomes available to the bot
+by **bare name**. Comment **`@claude ardi`** (or any other skill trigger) on a
+PR or issue and the bot can invoke the `ardi` skill, exactly like the local CLI
+does. No duplication (`skills/` stays the one source of truth) and new skills
+are picked up automatically.
+
+> **Note:** On PRs that predate the merge of this feature to `main`, the
+> symlink is absent (`restoreConfigFromBase` restores from the `main` at the
+> time Claude runs). Skills become available to the bot for all sessions after
+> this PR merges.
+
+## Deconflicting parallel local sessions
+
+When several AI sessions have the **same local checkout** open at once (two
+Claude Code tabs, a CLI + the IDE extension, two terminals) they can clobber
+each other — branch switches under uncommitted edits, racing pushes, duplicate
+builds. The **`session-lock`** skill (alias `deconflict-sessions`) is the
+local-filesystem counterpart to `claim-pr`: a small registry CLI
+(`skills/session-lock/scripts/ai-session.sh`) keeps a machine-local list of
+active sessions under `.git/ai-sessions/`, so sessions can see each other,
+refuse to share a working tree, isolate into a `git worktree`, and auto-recover
+after a crash. There's an optional `SessionStart` hook for hands-off
+registration. See [`docs/local-session-deconfliction.md`](docs/local-session-deconfliction.md).
+
+## Quality gates
+
+Two lightweight checks keep the skill catalog well-formed:
+
+- **CI** (`.github/workflows/validate.yml`) runs `scripts/validate-skills.py`
+  (every `SKILL.md` has valid frontmatter; the manifests are valid JSON) and
+  `scripts/check-links.py` (no broken relative markdown links) on every push
+  and PR.
+- **Pre-commit** (`.pre-commit-config.yaml`) adds local secret-scanning
+  ([gitleaks](https://github.com/gitleaks/gitleaks)) plus the same two
+  validators. Enable once with `pre-commit install`.
+
+Run them by hand any time:
+
+```sh
+python3 scripts/validate-skills.py
+python3 scripts/check-links.py
+```
+
+Ideas borrowed from comparable projects (and their licenses) are recorded in
+[`CREDITS.md`](CREDITS.md); see the `scout-peers` skill for the survey behind
+them.
+
 ## What's tracked
 
 - `skills/` — reusable workflow skills (`~/.claude/skills/`)
 - `commands/` — slash commands (`~/.claude/commands/`)
 - `memories/` — persistent notes & preferences (symlinked into VS Code Copilot memory dir)
+- `references/` — reviewed reference material / worked examples (e.g. a cloud
+  Setup script). Documentation only: `bootstrap.sh` skips it, so it is **not**
+  symlinked into `~/.claude`.
 
 Add more by creating a top-level dir here (e.g., `agents/`,
 `output-styles/`) and rerunning `bootstrap.sh`.

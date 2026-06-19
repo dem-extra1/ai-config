@@ -47,6 +47,10 @@ latest claude comment (`gh pr view N --json comments --jq
 and parse it for any "Findings", "Issues", "Remaining" sections before
 declaring a PR ready.
 
+(A specific case of the standing **never assume; always verify** rule in
+`memories/preferences.md` — confirm the verdict with a fresh query, don't
+recall it.)
+
 ## Claim a GitHub PR/issue before working on it
 
 Before starting a work session on a GitHub PR or issue — i.e. before fetching
@@ -77,6 +81,39 @@ This applies to:
 
 It does **not** apply to read-only inspection: `show me PR #X`, `what's the
 status of #Y`, `explain the diff on #Z`. Those don't risk a parallel session.
+
+## File an issue before starting a new task
+
+When starting a **new** piece of work, go **issue-first**: before branching,
+editing, or opening a PR, make sure a tracking issue exists. Search the tracker
+first; if no open issue covers the task, **file one** (`gh issue create` /
+`glab issue create`), then proceed. Never jump straight into a PR without a
+tracking issue behind it.
+
+The issue is the durable record of intent, scope, and "done" criteria — it
+gives reviewers context, lets the PR auto-close it via `Closes #N`, and keeps
+the work discoverable even if the PR stalls. The `st` (Start Task) skill
+operationalizes this; `gi` (Grab Issue) is the path when the issue already
+exists. Skip only when the task is already tracked by an open issue.
+
+## Wrap up a merged PR with UMS
+
+When a PR/MR you were working on **merges**, run the `post-merge` skill:
+verify the merge actually landed, tidy the local branch (checkout `main`,
+pull, `git branch -d`), confirm any deferred items have follow-up issues, then
+run **UMS** to capture what the PR's review lifecycle taught — recurring review
+findings, corrections, and guidance given along the way. A merge is the natural
+checkpoint to bank lessons before the context is lost.
+
+## Always run ARDI on PRs you touch
+
+Whenever I'm working a PR/MR, run the full **ARDI** loop by default, without
+being asked: **A**ddress every flagged item, **R**ebut findings that are wrong,
+**D**efer out-of-scope items to tracked issues, then **I**terate with a fresh
+review — repeating until the latest review has zero flagged items under any
+heading. Don't stop at "review-clean, just needs approval" and hand triage
+back; keep the cycle going until it's genuinely clean. (Mechanics for each
+step are in the sections below.)
 
 ## Address every in-scope review comment, even non-blockers
 
@@ -121,7 +158,9 @@ git merge origin/main
 ```
 
 Always do this before triggering a fresh `@claude review`, so the reviewer
-evaluates the PR against current `main` rather than a stale snapshot.
+evaluates the PR against current `main` rather than a stale snapshot. (Another
+instance of **never assume; always verify** — `git fetch` to check main's
+actual position instead of assuming the branch is current.)
 
 Don't rebase or squash-rewrite a published PR branch unless explicitly
 asked — a merge commit is the right move because it matches GitHub's "Update
@@ -130,3 +169,22 @@ branch" button and preserves the PR history.
 If the merge has conflicts, resolve them, run the project's standard
 pre-commit checks (render / lint / spell / tests), commit, then push. Don't
 push a half-resolved merge.
+
+## Coding style: avoid nesting; follow the lab manual
+
+Follow the SERG lab manual (https://ucd-serg.github.io/lab-manual/) for coding
+and collaboration conventions.
+
+When writing code, **avoid nested function calls and nested function
+definitions where feasible**:
+
+- Prefer named intermediate variables (or a pipe, e.g. `|>` / `%>%` in R) over
+  deeply nested calls like `f(g(h(x)))`. Naming each step makes the data flow
+  read top-to-bottom and leaves intermediate values inspectable in a debugger.
+- Prefer standalone, top-level function definitions over functions defined
+  inside other functions. Nested definitions hide reusable logic, complicate
+  unit testing, and obscure scope.
+
+This is a readability/maintainability default, not an absolute rule — keep the
+nesting when flattening it would be more convoluted (a trivial one-argument
+wrapper, or a closure that genuinely needs the enclosing scope).
