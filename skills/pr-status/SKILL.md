@@ -50,12 +50,16 @@ GitHub tools like `mcp__github_ci__get_ci_status` are an alternative where the
 Read the full latest review body and scan for any "Findings", "Issues",
 "Remaining", "Non-blocking", "Minor", "Could improve", "Consider", etc.
 section. The bar for reporting **clean**: "Looks good" / "no findings" /
-"approved" with **zero** follow-on bullets under any heading.
+"approved" with **zero** follow-on bullets under any heading. A posted rebuttal
+the reviewer is still disputing is **open**, not clean — a rebuttal counts only
+once it convinced the reviewer (they dropped the item).
 
-Do **not** report "ready to merge with one minor nit noted" / "harmless
-as-is" / "can address if you want" — that hedging just pushes triage back to
-the user. If there are open items, report them as open (and offer to run
-`iterate` to clear them).
+A PR is only **fully clean / ready to merge** when its review is clean *and*
+all CI workflows are green *and* every review thread is resolved (bar the final
+all-clear and your reply to it). Do **not** report "ready to merge with one
+minor nit noted" / "harmless as-is" / "can address if you want" — that hedging
+just pushes triage back to the user. If there are open items, report them as
+open (and offer to run `iterate` to clear them).
 
 ## Output
 

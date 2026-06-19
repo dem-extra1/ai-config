@@ -67,7 +67,9 @@ report as "clean": broaden the filter or flag that no review was found.
 Scan the latest body for any "Findings", "Issues", "Remaining",
 "Non-blocking", "Minor", "Could improve", "Consider", etc. section. The bar for
 **clean**: "Looks good" / "no findings" / "approved" with **zero** follow-on
-bullets under any heading. Anything else is **open** — count the items.
+bullets under any heading. Anything else is **open** — count the items. A
+posted rebuttal the reviewer is still disputing is **open**, not clean: a
+rebuttal only counts once it convinced the reviewer (they dropped the item).
 
 ## Output
 
@@ -86,9 +88,10 @@ A Markdown table, one row per open PR, with these columns:
 
 Below the table, list each PR's open findings briefly (or "none"), and call out
 anything needing action: branches behind main, failing CI, drafts, or reviews
-that returned `null`. Do **not** label a PR "ready to merge" unless its review
-is genuinely clean *and* CI is green *and* it's not behind main — and never
-hedge with "ready except for one nit."
+that returned `null`. Do **not** label a PR "ready to merge" unless it is
+**fully clean** — its review is genuinely clean *and* all CI workflows are
+green *and* it's not behind main *and* every review thread is resolved (bar the
+final all-clear and your reply). Never hedge with "ready except for one nit."
 
 ## Notes
 

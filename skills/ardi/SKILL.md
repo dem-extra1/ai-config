@@ -74,15 +74,33 @@ includes:
 
 The goal is green CI + clean review, not just clean review.
 
-## The bar
+## The bar: "fully clean"
 
-Zero flagged items under any heading. "Looks good" / "no findings" / "approved"
-with no follow-on bullets. Don't stop at "ready with one minor nit."
+The loop ends only at **fully clean**, which means **both**:
 
-## Asymptotic-noise guard
+1. **All CI workflows green** — every required check, not just the review job
+   (see *Fix broken CI/workflows too* above).
+2. **The latest review is totally clean** — zero flagged items under any
+   heading. "Looks good" / "no findings" / "approved" with no follow-on
+   bullets. Every item that wasn't directly **Addressed** is either
+   **Deferred** to a tracked issue or **Rebutted with a rebuttal that actually
+   convinced the reviewer** (they didn't re-raise it on the next round). A
+   rebuttal the reviewer still disputes does **not** count as clean. Don't stop
+   at "ready with one minor nit."
 
-If after 3–4 rounds the reviewer keeps generating new nits (not converging),
-surface that to the user and ask whether to continue or accept.
+**Threads:** at fully-clean, every review thread is resolved **except two** —
+the reviewer's final all-clear comment and your reply acknowledging it. (Thread
+mechanics live in the `ard` skill, step 4b.)
+
+## Asymptotic-noise guard and deadlocks
+
+- **Deadlock on an item:** if you and the reviewer can't reach consensus (your
+  rebuttal didn't convince them, and their re-raise didn't convince you),
+  **escalate to a human reviewer** (`d-morrison`) for the final decision rather
+  than looping or unilaterally overriding. Surface the open item to the user.
+- **Asymptotic noise:** if after 3–4 rounds the reviewer keeps generating new
+  nits (not converging), surface that to the user and ask whether to continue
+  or accept.
 
 ## On clean
 

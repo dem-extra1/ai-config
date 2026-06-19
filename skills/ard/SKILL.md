@@ -141,13 +141,23 @@ glab api -X PUT "projects/:id/merge_requests/<N>/discussions/<discussion_id>?res
 - **Defer** — reply with the tracked issue link, then resolve (work lives
   elsewhere now).
 - **Acknowledge** — reply briefly, then resolve.
-- **Rebut** — reply with the falsifiable evidence. Resolve if the reviewer is a
-  bot or you're confident; **leave a human's thread open** if they may want to
-  respond to the rebuttal.
+- **Rebut** — reply with the falsifiable evidence. A rebuttal only counts as
+  settled once it **convinces the reviewer** — i.e. they don't re-raise it on
+  the next round. While that's still in question, **leave the thread open**:
+  resolve a bot's thread once it drops the item, and leave a human's thread
+  open if they may want to respond. If you and the reviewer reach an impasse
+  (your rebuttal didn't convince them, their re-raise didn't convince you),
+  **escalate to a human reviewer** (`d-morrison`) for the final decision rather
+  than resolving unilaterally or looping forever.
 
 Don't resolve a thread you haven't replied to. Every inline comment ends with
 both a reply and (where appropriate) a resolution — silence on a thread reads as
 ignored, exactly the failure ARD exists to prevent.
+
+**End-state (fully clean):** when the PR/MR is fully clean, **every** review
+thread is resolved **except two** — the reviewer's final all-clear comment and
+your reply acknowledging it. A leftover open thread (an unaccepted rebuttal, an
+un-resolved Address) means you're not clean yet.
 
 ### 5. Report back with a link
 
@@ -172,7 +182,10 @@ Inside the `iterate` loop:
 4. Post the ARD summary and per-thread replies (this skill: steps 4–4b)
 5. Re-request review (iterate step 3) — **even if this round was Rebut/Defer only**, so the reviewer re-evaluates.
 
-The loop continues until the reviewer returns zero findings (and CI is green).
+The loop continues until the PR/MR is **fully clean** — zero findings, all CI
+workflows green, and every review thread resolved except the reviewer's final
+all-clear and your reply to it. A rebuttal counts only once it convinces the
+reviewer; on an impasse, escalate to a human reviewer (`d-morrison`).
 
 ## Edge cases
 
