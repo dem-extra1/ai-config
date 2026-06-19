@@ -22,9 +22,8 @@ allowed-tools:
 
 Close the feedback loop on skill quality: when a skill misbehaves in a real
 session, repair it *now*, while the failure is in front of you. This is the
-retrospective complement to the `skill-builder` skill (which authors new
-skills) and `ums` (which records learnings) — it fixes a skill that already
-shipped and then misfired.
+retrospective complement to *authoring* a skill and to `ums` (which records
+learnings) — it fixes a skill that already shipped and then misfired.
 
 ## When this fires
 
@@ -72,8 +71,7 @@ and the reasoning. Don't rewrite the whole skill; don't add unrelated polish.
 On approval, edit the SKILL.md. Then sanity-check it still parses and is
 internally consistent: run `scripts/validate-skills.py` if the repo has it, and
 re-read the trigger against the failure that prompted the heal. If this repo
-ships skills via branch + PR (see the `skill-builder` skill), follow that flow
-rather than committing to main.
+ships skills via branch + PR, follow that flow rather than committing to main.
 
 ### 5. Record the lesson
 

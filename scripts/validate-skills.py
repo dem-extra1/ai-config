@@ -20,6 +20,7 @@ Exits non-zero if any error is found.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,16 +34,19 @@ errors: list[str] = []
 warnings: list[str] = []
 
 
+FRONTMATTER = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.S)
+
+
 def parse_frontmatter(text: str, where: str):
-    if not text.startswith("---"):
-        errors.append(f"{where}: missing YAML frontmatter (no leading '---')")
-        return None
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        errors.append(f"{where}: frontmatter not closed with '---'")
+    match = FRONTMATTER.match(text)
+    if not match:
+        errors.append(
+            f"{where}: missing or unterminated YAML frontmatter "
+            "(expected a '---' block at the very top of the file)"
+        )
         return None
     try:
-        data = yaml.safe_load(parts[1])
+        data = yaml.safe_load(match.group(1))
     except yaml.YAMLError as exc:
         errors.append(f"{where}: invalid YAML frontmatter: {exc}")
         return None
