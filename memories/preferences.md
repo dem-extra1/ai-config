@@ -71,7 +71,7 @@
   remove unreachable branches, simplify variable assignments that can never take their
   fallback values given the current invocation context.
 - Avoid nested function calls and nested function definitions where feasible — prefer
-  named intermediate variables (or a pipe, e.g. `|>` / `%>%`) over `f(g(h(x)))`, and
+  named intermediate variables (or a pipe, e.g. `|>` / `%>%` in R) over `f(g(h(x)))`, and
   prefer top-level function definitions over functions defined inside other functions.
   Keep the nesting only when flattening it would be more convoluted. (CLAUDE.md "Coding
   style" section has the full rationale.)
