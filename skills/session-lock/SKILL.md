@@ -83,6 +83,12 @@ Exit codes let you gate work:
 | `3`  | **same working tree** — another live session shares this exact checkout | isolate (step 3) **before editing** |
 | `4`  | same branch in a *different* worktree — pushes may race | coordinate pushes, or use a distinct branch |
 
+If both apply at once, `check` prints **both** warning blocks but exits `3` —
+the more severe code wins. That's intentional: a shared working tree subsumes
+the push race, and isolating into your own worktree (step 3) resolves both. A
+caller scripting on the exit code should treat `3` as "isolate first," which
+also clears any latent `4`.
+
 `check` also refreshes your own heartbeat (when run with a `--id` that is
 already registered), so calling it as you work keeps your session marked live.
 Run without a registered id it is purely **read-only** — it still reports
