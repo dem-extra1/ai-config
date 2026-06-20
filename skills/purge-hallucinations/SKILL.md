@@ -38,7 +38,7 @@ Pick the narrowest target the user named, in this precedence order:
 1. **Explicit target** — a file, a directory, a PR diff, or pasted AI output
    the user pointed at. For a PR: `gh pr diff <n>` (local) or
    `mcp__github__pull_request_read` `method: get_diff` (remote/web — see
-   `CLAUDE.md`'s MCP table); audit only the references the diff *introduces*.
+   `memories/tools.md`); audit only the references the diff *introduces*.
 2. **The memory/instruction corpus** — the ai-config repo's `memories/`,
    `skills/`, and `CLAUDE.md`. Find the repo root with
    `git -C ~/.claude/skills rev-parse --show-toplevel`.
@@ -78,8 +78,9 @@ the reference type:
 - **Action ref + version** — confirm the tag/SHA exists
   (`gh api repos/<org>/<repo>/git/refs/tags/<tag>` or `.../commits/<sha>`).
 - **Skill name** — directory exists under `skills/<name>/` in ai-config.
-- **Memory cross-link** — a file in `memories/` has `name: <target>` in its
-  frontmatter (`grep -rl "^name: <target>$" memories/`).
+- **Memory cross-link** — `[[target]]` links resolve to **skill directories**
+  (`ls skills/<target>/`); if no matching skill, search memory headings
+  (`grep -rn "^# .*<target>" memories/`).
 - **URL / link** — `curl -sSI -o /dev/null -w '%{http_code}' URL` (local) or
   `WebFetch` (remote). **A 404/410 is fabricated; a timeout, 403, 429, or
   DNS failure is *unverifiable*** — distinguish them.
