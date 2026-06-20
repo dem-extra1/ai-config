@@ -43,11 +43,18 @@ For each round:
    Don't rebase/squash a published branch — a merge commit matches GitHub's
    "Update branch" button.
 
-3. **Request the review.**
+3. **Request the review — but don't double-trigger.**
    - `@claude` bot reviewer: trigger it the way the repo is wired — post
      `@claude review` where the review (or agent) workflow is comment-triggered,
-     **or** dispatch the review workflow directly (`workflow_dispatch`). See the
-     heads-up below for which applies to the d-morrison Quarto / R-pkg repos.
+     **or** dispatch the review workflow directly (`workflow_dispatch`).
+     - **Don't double-trigger.** If you **just pushed code**, the push already
+       fires the review workflow (e.g. `claude-code-review` on `pull_request`
+       sync) — do **NOT** also post `@claude review`. On workflows with
+       `concurrency: cancel-in-progress` the two runs cancel each other and the
+       latest commit ends up with no posted verdict. Only post `@claude review`
+       when **no fixes were pushed** this round. If a review gets canceled with
+       no comment, dispatch a clean one with `workflow_dispatch` (see the
+       heads-up below).
    - **Heads-up — some repos' review workflow is *not* comment-triggered.**
      The d-morrison Quarto / R-pkg repos (e.g. `d-morrison/psw`) run their review
      workflow `claude-code-review.yml` on `pull_request` (`opened, synchronize,
@@ -68,6 +75,17 @@ For each round:
      use this skill elsewhere). A self-authored PR can't request its own
      author — GitHub returns 422; surface that, don't swallow it. (If your
      config ships a `request-pr-review` skill, use it — it does the same.)
+
+   **Don't let the trigger phrase leak into prose.** The `issue_comment`
+   trigger fires on the bare bot `@`-mention **anywhere** in a comment body —
+   even inside a sentence saying you're *not* triggering a review. In ARD
+   summaries and status comments, refer to it obliquely ("re-request review",
+   "the review-trigger mention") or split the tokens (e.g. `@ claude`, with a
+   space, so the raw body never contains the contiguous handle); paste the
+   literal `@`-mention only when you actually intend to dispatch. A stray mention
+   spawns a run that cancels the push-triggered review on `cancel-in-progress`
+   setups. On the d-morrison/gha mention bot it also starts a session whose
+   residual-commit sweep can churn the branch.
 
 4. **Wait for the review to land, then read the LATEST one.** Don't trust an
    earlier cached verdict — a newer review may have landed since (bot, human,
@@ -132,10 +150,13 @@ For each round:
    comment summarizing what you addressed and how (fixed vs. deferred + issue
    link).
 
-7. **Re-request review (back to step 3) and repeat** until the verdict
+7. **Re-request review (back to step 3) and repeat** until the PR is **fully
+   clean** (see *The bar: "fully clean"* below). That means the verdict
    contains **zero** flagged items under any heading — no "non-blocking",
-   "minor observation", "could improve", etc. "Looks good" / "no findings" /
-   "approved" with no follow-on bullets is the bar.
+   "minor observation", "could improve", etc.; "Looks good" / "no findings" /
+   "approved" with no follow-on bullets — **and** all CI workflows are green
+   **and** every inline thread is resolved. Don't exit on a clean review body
+   alone.
 
 ## Fix broken CI/workflows too
 
@@ -153,18 +174,40 @@ includes:
 
 The goal is green CI + clean review, not just clean review.
 
-## The bar for "clean"
+## The bar: "fully clean"
+
+The loop ends only at **fully clean**, which means **both**:
+
+1. **All CI workflows green** — every required check, not just the review job
+   (see *Fix broken CI/workflows too* above).
+2. **The latest review is totally clean** — nothing flagged under any heading.
+   Every item that wasn't directly **Addressed** is either **Deferred** to a
+   tracked issue or **Rebutted with a rebuttal that actually convinced the
+   reviewer** (they didn't re-raise it on the next round). A rebuttal the
+   reviewer still disputes does **not** count as clean.
+
+**Threads:** at fully-clean, every **inline** review thread is resolved, and
+the only conversation left open is the final all-clear exchange — the
+reviewer's all-clear comment (usually a top-level PR comment, not an inline
+thread) and your reply to it (see the `ard` skill, step 4b, for thread
+mechanics).
 
 Don't stop at, or report, "ready to merge with one minor nit noted" /
 "harmless as-is" / "can address if you want." That hedging just pushes triage
-back to the user. Keep going until there's nothing flagged.
+back to the user.
 
-## Asymptotic-noise guard
+## Asymptotic-noise guard and deadlocks
 
-If after **3–4 rounds** the reviewer keeps generating *new* nits each cycle
-(it's chasing diminishing returns rather than converging), stop and surface
-that to the user: summarize the open items and ask whether to keep going or
-accept the current state. Don't loop forever.
+- **Deadlock on an item:** if you and the reviewer can't reach consensus (your
+  rebuttal didn't convince them, and their re-raise didn't convince you),
+  **escalate to a human reviewer** for the final call rather than looping or
+  unilaterally overriding. Request `d-morrison` via the `request-pr-review`
+  skill (or `gh pr edit <N> --add-reviewer d-morrison`), `@`-mention them with
+  the impasse, and surface the open item to the user.
+- **Asymptotic noise:** if after **3–4 rounds** the reviewer keeps generating
+  *new* nits each cycle (chasing diminishing returns rather than converging),
+  stop and surface that to the user: summarize the open items and ask whether
+  to keep going or accept the current state. Don't loop forever.
 
 ## On clean
 

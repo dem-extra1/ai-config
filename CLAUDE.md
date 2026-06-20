@@ -47,6 +47,10 @@ latest claude comment (`gh pr view N --json comments --jq
 and parse it for any "Findings", "Issues", "Remaining" sections before
 declaring a PR ready.
 
+(A specific case of the standing **never assume; always verify** rule in
+`memories/preferences.md` — confirm the verdict with a fresh query, don't
+recall it.)
+
 ## Claim a GitHub PR/issue before working on it
 
 Before starting a work session on a GitHub PR or issue — i.e. before fetching
@@ -78,6 +82,64 @@ This applies to:
 It does **not** apply to read-only inspection: `show me PR #X`, `what's the
 status of #Y`, `explain the diff on #Z`. Those don't risk a parallel session.
 
+## File an issue before starting a new task
+
+When starting a **new** piece of work, go **issue-first**: before branching,
+editing, or opening a PR, make sure a tracking issue exists. Search the tracker
+first; if no open issue covers the task, **file one** (`gh issue create` /
+`glab issue create`), then proceed. Never jump straight into a PR without a
+tracking issue behind it.
+
+The issue is the durable record of intent, scope, and "done" criteria — it
+gives reviewers context, lets the PR auto-close it via `Closes #N`, and keeps
+the work discoverable even if the PR stalls. The `st` (Start Task) skill
+operationalizes this; `gi` (Grab Issue) is the path when the issue already
+exists. Skip only when the task is already tracked by an open issue.
+
+## Wrap up a merged PR with UMS
+
+When a PR/MR you were working on **merges**, run the `post-merge` skill:
+verify the merge actually landed, tidy the local branch (checkout `main`,
+pull, `git branch -d`), confirm any deferred items have follow-up issues, then
+run **UMS** to capture what the PR's review lifecycle taught — recurring review
+findings, corrections, and guidance given along the way. A merge is the natural
+checkpoint to bank lessons before the context is lost.
+
+## What "fully clean" means
+
+"Fully clean" is the terminal state every ARDI / iterate loop drives toward.
+A PR/MR is **fully clean** when **both** of these hold:
+
+1. **All CI workflows are green.** Every required check passes — not just the
+   review job.
+2. **The latest review is totally clean:** no nits, and every item that wasn't
+   directly **Addressed** is either **Deferred** to a tracked follow-up issue,
+   or **Rebutted with a rebuttal that actually convinced the reviewer** — i.e.
+   the reviewer did *not* re-raise it on the next round. A rebuttal the
+   reviewer still disputes does **not** count as clean.
+
+**Threads:** at fully-clean, every **inline** review thread is resolved, and
+the only conversation left open is the final all-clear exchange — the
+reviewer's all-clear comment and your reply to it. (The all-clear is usually a
+top-level PR comment, not an inline thread.)
+
+**Deadlock → escalate to a human.** If you and the reviewer(s) can't reach
+consensus on an item (a rebuttal was exchanged and neither side is budging),
+don't loop forever and don't unilaterally override the reviewer — request a
+**human reviewer** (`d-morrison`) via the `request-pr-review` skill (or
+`gh pr edit <N> --add-reviewer d-morrison`), `@`-mention them in a comment
+summarizing the impasse, and surface the open item to me.
+
+## Always run ARDI on PRs you touch
+
+Whenever I'm working a PR/MR, run the full **ARDI** loop by default, without
+being asked: **A**ddress every flagged item, **R**ebut findings that are wrong,
+**D**efer out-of-scope items to tracked issues, then **I**terate with a fresh
+review — repeating until the latest review is **fully clean** (see *What
+"fully clean" means* above). Don't stop at "review-clean, just needs approval"
+and hand triage back; keep the cycle going until it's genuinely clean.
+(Mechanics for each step are in the sections below.)
+
 ## Address every in-scope review comment, even non-blockers
 
 When iterating on a PR with `@claude review` (or any other reviewer), **address
@@ -94,15 +156,23 @@ For each flagged item, exactly one of:
    reference it in a PR comment so the item isn't lost.
 
 Then trigger another `@claude review` (or the equivalent) and repeat until the
-verdict contains zero flagged items under any heading — no "non-blocking",
-"harmless", "minor observation", "could improve", etc. sections. "Looks good"
-/ "no findings" / "approved" with no follow-on bullets is the bar.
+PR is **fully clean** (see *What "fully clean" means* above) — zero flagged
+items under any heading, no "non-blocking", "harmless", "minor observation",
+"could improve", etc. sections. "Looks good" / "no findings" / "approved" with
+no follow-on bullets is the bar. Resolve every inline review thread along the
+way, leaving only the final all-clear exchange (the reviewer's comment and your
+reply).
 
 Do **not** report "ready to merge with one minor nit noted" / "harmless
 as-is" / "can address if you want" — that hedging just pushes triage back to
 the user.
 
-If after 3–4 rounds the reviewer keeps generating new nits each cycle
+If you and the reviewer reach an impasse on an item (your rebuttal didn't
+convince them and you're not convinced by their re-raise), escalate to a
+**human reviewer** — request `d-morrison` via the `request-pr-review` skill (or
+`gh pr edit <N> --add-reviewer d-morrison`) and `@`-mention them with the
+impasse — for the final call rather than looping.
+Likewise, if after 3–4 rounds the reviewer keeps generating new nits each cycle
 (asymptotic noise), surface that to the user and ask whether to keep going or
 accept the current state.
 
@@ -121,7 +191,9 @@ git merge origin/main
 ```
 
 Always do this before triggering a fresh `@claude review`, so the reviewer
-evaluates the PR against current `main` rather than a stale snapshot.
+evaluates the PR against current `main` rather than a stale snapshot. (Another
+instance of **never assume; always verify** — `git fetch` to check main's
+actual position instead of assuming the branch is current.)
 
 Don't rebase or squash-rewrite a published PR branch unless explicitly
 asked — a merge commit is the right move because it matches GitHub's "Update
@@ -130,3 +202,79 @@ branch" button and preserves the PR history.
 If the merge has conflicts, resolve them, run the project's standard
 pre-commit checks (render / lint / spell / tests), commit, then push. Don't
 push a half-resolved merge.
+
+## Coding style: avoid nesting; follow the lab manual
+
+Follow the SERG lab manual (https://ucd-serg.github.io/lab-manual/) for coding
+and collaboration conventions.
+
+When writing code, **avoid nested function calls and nested function
+definitions where feasible**:
+
+- Prefer named intermediate variables (or a pipe, e.g. `|>` / `%>%` in R) over
+  deeply nested calls like `f(g(h(x)))`. Naming each step makes the data flow
+  read top-to-bottom and leaves intermediate values inspectable in a debugger.
+- Prefer standalone, top-level function definitions over functions defined
+  inside other functions. Nested definitions hide reusable logic, complicate
+  unit testing, and obscure scope.
+
+This is a readability/maintainability default, not an absolute rule — keep the
+nesting when flattening it would be more convoluted (a trivial one-argument
+wrapper, or a closure that genuinely needs the enclosing scope).
+
+## Writing style: plain, direct prose
+
+Write user-facing prose in a plain, direct style. This applies to everything I
+read — PR/issue/commit text, docs, READMEs, code comments, release notes,
+emails, and chat replies. Apply it by default to your own drafts, not just when
+asked.
+
+The guide of record is my **Principles of Scientific Writing (PSW)**:
+https://d-morrison.github.io/psw/. The rules below operationalize it. When PSW
+and this section disagree, PSW wins.
+
+- **Limit dependent (subordinate) clauses.** One per sentence is plenty. When
+  two or more stack up, split the sentence.
+- **Cut low-content filler and jargon.** Delete words that add no information
+  ("it's worth noting", "in order to" → "to", "due to the fact that" →
+  "because").
+- **Prefer plain (Anglish) words over Latin-derived ones** (PSW, "Word choice").
+  "before", not "prior to"; "needed", not "necessary"; "use", not "utilize". A
+  heuristic, not a purity rule.
+- **Prefer simple declarative sentences and active voice.** Subject, verb,
+  point. Name the actor, then the action.
+- **Join independent clauses with coordinating conjunctions** (and, but, so, or)
+  over subordinate constructions. Prefer "X is fast, but Y is correct" over
+  "While X is fast, Y is correct."
+
+This is a default, not an absolute rule. Keep a clause or a technical term when
+removing it would lose meaning or precision. Never trade an honest hedge for
+false confidence. The `use-preferred-style` skill (alias `style`) spells out the
+procedure, the PSW chapter links, and a filler/jargon swap table; the
+`find-ai-tells` skill (alias `ai-tells`) is the scan-after detector counterpart.
+
+## Writing style: scan for AI tells
+
+The detector counterpart to the plain-prose guide above: write plainly up
+front, then **scan the draft for AI tells before sending**. Before presenting
+non-trivial prose I authored — PR/issue descriptions, commit bodies,
+README/doc/vignette text, or a long answer meant as deliverable prose —
+self-check it and cut the tells. Watch for:
+
+- **Overused vocabulary:** delve, leverage, utilize, tapestry, testament, realm,
+  robust, seamless, holistic, nuanced, multifaceted, pivotal, crucial, "in
+  today's fast-paced world", "stands as a testament to".
+- **Rhetorical reflexes:** the "it's not just X, it's Y" antithesis (the biggest
+  tell), mechanical rule-of-three lists, signposting filler ("it's worth noting
+  that", "importantly"), hedging stacks, hollow "in conclusion" restatements.
+- **Structural/typographic:** em-dash overuse as a default connector,
+  bold-leading `**Term:**` bullets applied mechanically, emoji section headers,
+  conspicuously uniform paragraph rhythm.
+- **Tonal:** promotional register, reflexive both-sidesing, vague universals
+  with no concrete names or numbers.
+
+De-slop — cut the filler and the reflexes — **don't** ban words outright or sand
+the text into a flat, voiceless register. Any single tell is innocent;
+clustering and mechanical repetition are the signal. Code, terse status lines,
+and short conversational replies are exempt. The `find-ai-tells` skill (alias
+`ai-tells`) runs this same catalog on demand against any target text.
