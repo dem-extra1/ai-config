@@ -119,11 +119,14 @@ Evaluate in this order so the label matches the Definitions table:
 ```bash
 # --format gives plain names — plain `git branch --merged` prefixes a branch
 # checked out in a linked worktree with `+` (not two spaces), so a fixed-column
-# grep would miss every branch this skill evaluates.
+# grep would miss every branch this skill evaluates. -Fxq: fixed string + whole
+# line, so a branch name with regex metachars (`.`, `+`, `*`) can't match loosely.
 git branch --merged origin/main --format='%(refname:short)' \
-  | grep -qx "<branch>" && echo MERGED
+  | grep -Fxq "<branch>" && echo MERGED
+# -Fx: fixed string + whole line, so a branch name with regex metachars
+# (`.`, `+`, `*`) can't match loosely. for-each-ref emits exactly "<branch> [gone]".
 git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads \
-  | grep -E "^<branch> .*\[gone\]" && echo GONE
+  | grep -Fxq "<branch> [gone]" && echo GONE
 ```
 
 Merged into `origin/main`, or upstream `[gone]` with **no** unique commits (3b
