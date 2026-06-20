@@ -58,14 +58,17 @@ This skill is GitHub-first (`gh`). For a GitLab repo, the same shape applies via
 ### 1. List the open chore PRs
 
 ```bash
-gh pr list --repo "$REPO" --state open \
-  --json number,title,author,labels,mergeable,mergeStateStatus,createdAt \
+gh pr list --repo "$REPO" --state open --limit 200 \
+  --json number,title,author,labels,mergeable \
   --jq '.[] | select(
           (.author.login | test("dependabot|renovate"))
           or (.title | startswith("chore("))
           or ([.labels[].name] | index("dependencies"))
         ) | "\(.number)\t\(.mergeable)\t\(.title)"'
 ```
+
+`--limit 200` because `gh pr list` defaults to 30 — a piled-up weekly backlog
+would otherwise be silently truncated.
 
 If there are none, say so and stop.
 
@@ -103,8 +106,11 @@ gh pr view "$N" --repo "$REPO" --json mergeable,mergeStateStatus \
 If `CONFLICTING` / `DIRTY`, ask the bot to rebase rather than resolving by hand:
 
 ```bash
-gh pr comment "$N" --repo "$REPO" --body "@dependabot rebase"
+gh pr comment "$N" --repo "$REPO" --body "@dependabot rebase"   # Dependabot only
 ```
+
+For a Renovate PR, tick the rebase checkbox in the PR body (or its Dependency
+Dashboard) — `@dependabot` comment commands do nothing on Renovate PRs.
 
 ### 4. Safe bumps (patch / minor / submodule + green) → merge
 
@@ -114,13 +120,27 @@ Merge directly. Dependabot deletes its own branch on merge.
 gh pr merge "$N" --repo "$REPO" --squash
 ```
 
+Pick a merge method the repo actually allows — `--squash` errors when squash
+merges are disabled; swap in `--merge` or `--rebase` to match the repo's
+settings.
+
 If checks are still running and you want it to land once they pass:
 
 ```bash
 gh pr merge "$N" --repo "$REPO" --squash --auto   # needs auto-merge enabled on the repo
-# or, bot-native and independent of repo settings:
-gh pr comment "$N" --repo "$REPO" --body "@dependabot squash and merge"
 ```
+
+For **Dependabot** you can also hand the merge back to the bot — it waits for
+CI, merges, and deletes its branch (handy when the branch needs a rebase
+first):
+
+```bash
+gh pr comment "$N" --repo "$REPO" --body "@dependabot squash and merge"   # Dependabot only
+```
+
+`@dependabot ...` comment commands do nothing on **Renovate** PRs — for those,
+use `gh pr merge` (or tick the merge checkbox in Renovate's Dependency
+Dashboard).
 
 Batch the safe ones — merge them all in one pass, then report.
 
@@ -145,8 +165,9 @@ hide a behavior change. For each:
    runtime bumps (e.g. a newer Node for `actions/*` v-major jumps), removed
    inputs, changed defaults — and give a recommendation (merge / hold / needs a
    workflow tweak first).
-4. **Surface it for the user's call.** Merge a major bump only after they say
-   so, or when your changelog read shows it's clearly safe *and* you note why.
+4. **Surface it for the user's call.** Always get an explicit sign-off before
+   merging a major bump — that human checkpoint is the whole point of flagging
+   it. Don't self-clear a major because the changelog "looks safe."
 
 ### 6. Report
 
@@ -182,7 +203,8 @@ bump is sitting unflagged.
 
 ## Anti-patterns
 
-- ❌ Merging a major bump just because CI is green — read the changelog first.
+- ❌ Merging a major bump just because CI is green, or self-clearing one because
+  the changelog "looks safe" — read the changelog and get an explicit sign-off.
 - ❌ Running the full `ardi` review loop on a bot bump PR (review is skipped on
   them; they're gated on CI, not a reviewer).
 - ❌ Resolving a Dependabot merge conflict by hand — comment `@dependabot
