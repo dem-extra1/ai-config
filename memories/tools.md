@@ -86,3 +86,11 @@
   can recur on later runs. Before merging, run
   `git show origin/<branch>:CLAUDE.md` and confirm the section is still there.
   Tracked upstream: d-morrison/gha#39.
+
+## Bash tool runs under zsh — avoid reserved variable names
+- The Bash tool's shell is zsh-initialized, where some names are **read-only
+  special variables**: `status`, `path`, `pipestatus`, `argv`, `options`, `?`.
+  Assigning to them (e.g. `status=$(...)` in a poll loop) fails with
+  `read-only variable: status` and aborts the command.
+- Use neutral names instead — `st`, `rc`, `out`, `p`. Bit a `gh run view`
+  status-poll loop once; renaming `status`→`st` fixed it.
