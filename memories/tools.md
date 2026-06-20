@@ -28,6 +28,16 @@
 - Can't use `git push --force origin <tag>` on some GitLab instances (protected tags). The delete+recreate pattern always works.
 - `git fetch --tags` silently refuses to update a local tag that already exists if the remote moved it. Use `git fetch --tags --force` to get the latest remote tag positions. Without `--force`, you'll see stale local tags and draw wrong conclusions about what the tag includes.
 
+## Git — scanning for parallel/in-flight work
+- A remote-only scan (`git branch -r`) **misses** work a parallel CLI session is
+  building in an **unpushed local worktree** — the branch exists only locally
+  until that session pushes. Bit PR #67: a sibling skill was caught by a stray
+  system-reminder, not the scan.
+- To find all in-flight work before starting (skill-builder Step 0, deconflict,
+  scout-peers, etc.), scan three layers: `git branch -a` (local + remote refs),
+  then `git worktree list --porcelain` and grep each worktree's working tree for
+  *uncommitted* files that never reached any ref. See [[use-isolated-worktree-for-ai-config]].
+
 ## GitLab Discussions API (inline diff comments)
 - Endpoint: `POST /projects/:id/merge_requests/:iid/discussions`
 - For inline comments, include `position` object: `position_type: "text"`, `base_sha`, `head_sha`, `start_sha`, `new_path`, `old_path`, `new_line`
