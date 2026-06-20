@@ -1,6 +1,6 @@
 ---
 name: resolve-conflicts
-description: "Resolve git merge/rebase/cherry-pick conflicts by consolidating the best of BOTH branches — understand why each side changed the hunk, then reconstruct a resolution that preserves both intents instead of blindly picking `--ours`/`--theirs`. Remove the markers, run the repo's pre-commit checks, stage, and finish the operation. Use when a merge / rebase / cherry-pick / stash pop / pull reports conflicts, or when asked to 'resolve conflicts', 'resolve the merge conflicts', 'fix the conflicts', 'I have a merge conflict', 'consolidate the best of both branches', or 'help me merge these branches'. Delegated to from `sync-pr-branch` step 5, `clean-branches`, and `gii`. (For multiple AI *sessions* clobbering one local checkout, that's `deconflict-sessions` / `session-lock`, not this.)"
+description: "Resolve git merge/rebase/cherry-pick conflicts by consolidating the best of BOTH branches — understand why each side changed the hunk, then reconstruct a resolution that preserves both intents instead of blindly picking `--ours`/`--theirs`. Remove the markers, run the repo's pre-commit checks, stage, and finish the operation. Use when a merge / rebase / cherry-pick / stash pop / revert / pull reports conflicts, or when asked to 'resolve conflicts', 'resolve the merge conflicts', 'fix the conflicts', 'I have a merge conflict', 'consolidate the best of both branches', or 'help me merge these branches'. Delegated to from `sync-pr-branch` step 5, `clean-branches`, and `gii`. (For multiple AI *sessions* clobbering one local checkout, that's `deconflict-sessions` / `session-lock`, not this.)"
 user-invocable: true
 allowed-tools:
   - Bash
@@ -65,9 +65,11 @@ go read the history first (step 2).
    git show :2:<file>                    # OURS  (HEAD / current side)
    git show :3:<file>                    # THEIRS (incoming side)
    ```
-   The `:1:`/`:2:`/`:3:` index stages work in any conflicted operation;
-   `git log --merge` is merge-only — mid-rebase, inspect the commit being
-   replayed with `git show REBASE_HEAD` instead.
+   The `:1:`/`:2:`/`:3:` index stages work in any conflicted operation.
+   `git log --merge` is merge-only; for the others, inspect the incoming commit
+   directly via the operation's pseudo-ref — `git show MERGE_HEAD` (merge),
+   `REBASE_HEAD` (rebase), `CHERRY_PICK_HEAD` (cherry-pick), or `REVERT_HEAD`
+   (revert).
    Ask: what problem was each side solving? Different features? One refactor +
    one fix? A move/rename vs an in-place edit? The answer dictates the merge.
 
