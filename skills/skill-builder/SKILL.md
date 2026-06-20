@@ -120,8 +120,18 @@ Skills and memories all live in the ai-config repo — never leave changes
 local-only. Commit via a **branch + PR** (not direct to main), request
 `d-morrison` as reviewer, then **ARDI to clean**.
 
+> **In a worktree session, the repo toplevel below is the MAIN checkout, not
+> your worktree.** `~/.claude/skills` symlinks into the main `ai-config`
+> checkout, so `git -C ~/.claude/skills … rev-parse --show-toplevel` returns the
+> main repo root — often on another session's branch. Don't `cd` there and don't
+> pass that path to Write/Edit: the skill files (and git commits) would land in
+> the main checkout, clobbering another session's working tree. Instead author
+> the files in your **worktree's own** `skills/<name>/` dir and run git from the
+> worktree (it's a full checkout of the same repo). Confirm with
+> `git branch --show-current` before committing.
+
 ```bash
-cd "$(git -C ~/.claude/skills/skill-builder rev-parse --show-toplevel)"   # the ai-config repo
+cd "$(git -C ~/.claude/skills/skill-builder rev-parse --show-toplevel)"   # ai-config root — NOTE: the MAIN checkout, NOT your worktree (see caveat above)
 git fetch origin main && git checkout -b add-<name>-skill origin/main
 # write skills/<name>/SKILL.md (+ alias dir, + preferences/CLAUDE.md if it's a rule)
 git add skills/<name>/SKILL.md memories/preferences.md      # stage the files you
@@ -153,6 +163,11 @@ Then, as their own explicit steps (don't leave them buried in a comment):
 - **`request-pr-review`, `ardi`** — used to ship and clean the new skill's PR.
 - **`simplify` / `tidy`** — when extending, prefer collapsing into an existing
   skill over proliferating near-duplicates.
+- **`heal-skill`** — the repair counterpart: this skill authors a skill,
+  `heal-skill` fixes one that misfired after it shipped.
+- **`link-skills`** — this skill cross-links the one skill it authors;
+  `link-skills` is the corpus-wide audit that catches cross-reference gaps a
+  single authoring pass missed.
 
 ## Anti-patterns
 
@@ -163,3 +178,7 @@ Then, as their own explicit steps (don't leave them buried in a comment):
 - ❌ `name:` not matching the directory name.
 - ❌ Encoding a standing rule in the skill but not in `preferences.md`.
 - ❌ Leaving the new skill as a local-only uncommitted file (or pushing direct to main).
+- ❌ In a worktree session, writing the skill files to the `rev-parse --show-toplevel`
+  path — it resolves to the main checkout (via the `~/.claude/skills` symlink), not
+  your worktree, so the files land on another session's branch. Author in the
+  worktree's own `skills/` dir.
