@@ -107,6 +107,10 @@
   off `origin/main` (`git worktree add -b <branch> ../ai-config-worktrees/<branch> origin/main`),
   not the shared wd. Clean it up after merge with `git worktree remove`. (Learned when a
   concurrent session deleted a freshly-written, still-untracked skill file from the wd.)
+  The `session-lock` skill (alias `deconflict-sessions`) tooling automates this:
+  `ai-session.sh worktree <branch> [--base origin/main]` creates the isolated worktree,
+  `register`/`check` surface collisions, and the registry under `.git/ai-sessions/` lets
+  parallel sessions see each other before they clobber the shared checkout.
 - When creating a new acronym/short-name skill (e.g., `gi`, `sup`, `ums`), always also
   create a spelled-out alias skill (e.g., `grab-issue`, `send-upstream`,
   `update-memories-and-skills`) that points to the canonical file.
