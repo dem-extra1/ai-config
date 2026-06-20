@@ -176,6 +176,12 @@
   numbers that came from the analysis (means, counts, p-values, sample sizes) so the
   text never goes stale on re-render. Hard-coded literals are fine for genuine constants
   (a chosen threshold, a year). Example: [ucdavis/bcs#191 review comment r3437005734](https://github.com/ucdavis/bcs/pull/191/changes#r3437005734).
+- Always leave yourself handoff notes proactively when pausing — don't wait to be asked —
+  especially while a long-running job is in flight (SLURM arrays, builds, CI, background
+  tasks, remote agents). Snapshot branch/HEAD, unpushed commits, job IDs + how to check
+  status, expected outputs + paths, backups, open decisions, and the exact pick-up steps
+  into a project memory, and post a paused-state note on any active PR/MR. See the
+  `handoff` and `wait-for-results` skills.
 - Always look for opportunities to create new reusable skills from multi-step processes.
   When a workflow emerges that could be codified, proactively suggest creating a skill for it.
 - When asked to build/create a new skill, FIRST check whether an existing skill should be
