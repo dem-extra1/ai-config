@@ -46,9 +46,12 @@ bounded window and **say what window you used**. Let `$ARGUMENTS` narrow it:
 gh repo view --json nameWithOwner --jq .nameWithOwner   # confirm the repo
 ```
 
-The commands below are written for GitHub/`gh`; the GitLab/`glab` equivalents
-follow each block. If the matching CLI isn't installed, say so and stop — don't
-hit the raw API blind.
+The commands below are written for GitHub/`gh`; step 2 also gives the
+GitLab/`glab` equivalents for the data-pull. Steps 3–5 use GitHub field names
+(`stateReason`, `closedByPullRequestsReferences`) that have direct GitLab
+analogues (an MR's `merged` vs `closed` state, an issue's closing MR) — adapt
+them. If the matching CLI isn't installed, say so and stop — don't hit the raw
+API blind.
 
 ### 2. Pull the closed items + their discussion
 
@@ -72,7 +75,10 @@ gh issue view <N> --json number,title,url,body,comments
 GitLab equivalents (same shape):
 
 ```bash
-glab mr list    --closed --per-page 30
+# In GitLab, a completed MR is `merged`, NOT `closed` (which means abandoned) —
+# sweep merged ones (the main follow-up source), and optionally abandoned ones:
+glab mr list    --merged --per-page 30   # completed MRs — primary source
+glab mr list    --closed --per-page 30   # abandoned MRs — optional
 glab issue list --closed --per-page 30
 glab mr view <N> --comments          # body + discussion
 glab issue view <N> --comments
