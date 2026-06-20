@@ -23,5 +23,6 @@ applies unchanged.
 Keep the logic only in `wrap-up`; this file is just the `/merged` entry point
 so the two names stay in sync.
 
-> Not to be confused with [`post-merge`](../post-merge/SKILL.md), which wraps up
-> a single just-merged PR. `/merged` routes to the session-level `wrap-up`.
+> `/merged` routes to [`wrap-up`](../wrap-up/SKILL.md), not
+> [`post-merge`](../post-merge/SKILL.md). `post-merge` wraps up a single
+> just-merged PR; `wrap-up` closes the whole session.
