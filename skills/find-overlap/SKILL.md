@@ -80,11 +80,11 @@ For skills:
 ```bash
 cd "$(git -C ~/.claude/skills rev-parse --show-toplevel)"
 for d in skills/*/; do n=$(basename "$d")
-  # robust for both inline and block-scalar (`description: >`) frontmatter:
+  # robust for inline and block-scalar (`>`, `|`, with optional `-`/`+` chomp) frontmatter:
   desc=$(python3 -c "
 import re
 t=open('$d/SKILL.md').read()
-m=re.search(r'^description:[ \t]*[>|]?[ \t]*\n?(.*?)(?=\n\S|\Z)', t, re.M|re.S)
+m=re.search(r'^description:[ \t]*[>|]?[-+]?[ \t]*\n?(.*?)(?=\n\S|\Z)', t, re.M|re.S)
 print(re.sub(r'\s+',' ', m.group(1) if m else '').strip().strip('\"')[:70])")
   lc=$(wc -l < "$d/SKILL.md" | tr -d ' ')
   printf '%4s  %-34s %s\n' "$lc" "$n" "$desc"
