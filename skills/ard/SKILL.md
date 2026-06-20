@@ -202,7 +202,7 @@ Tell the user what you did and give a **clickable URL** to the PR/MR (and to the
 
 ## Integration with ardi
 
-Inside the `ardi` loop (the skill formerly also reachable as `iterate`):
+Inside the `ardi` loop (also reachable as `iterate`):
 
 1. Read the latest review (`ardi` step 2)
 2. Apply ARD to each finding (this skill: steps 1–2)

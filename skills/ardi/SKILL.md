@@ -22,9 +22,10 @@ finding → push → post summary → re-request review → repeat until clean.
    `gh pr comment <N> --body "Driving this PR to clean — back off until done."`
    Skip if your most recent comment already says so.
 
-2. **Read the latest review.** Pull the most recent reviewer comment (bot or
-   human). Don't trust earlier cached verdicts — actively poll until a review
-   appears that references the commit you just pushed, then read **that** one.
+2. **Read the latest review.** Pull the most recent reviewer comment — the
+   `@claude` bot's, or a human's. Don't trust earlier cached verdicts — actively
+   poll until a review appears that references the commit you just pushed, then
+   read **that** one.
    `gh pr checks` / `glab ci list` going green is about **CI state**, not the
    review verdict — always parse the latest review *body* for findings.
 
@@ -37,7 +38,11 @@ finding → push → post summary → re-request review → repeat until clean.
      `claude`, the REST API as `claude[bot]`, and some setups post as
      `github-actions[bot]`. `startswith("claude")` matches across `gh pr view`
      and `gh api`; broaden it if your reviewer posts under another login, or
-     you'll silently read `null` and false-pass.
+     you'll silently read `null` and false-pass. **This command captures the
+     *bot* review only** — for a **human** reviewer (any login), gather comments
+     with the `ard` skill's step 1 (`gh pr view <N> --comments` plus the
+     inline-thread API), which collects every reviewer's comments regardless of
+     login.
    - **GitLab:** poll the MR notes (`sort=desc`) for a review note that
      references your latest short SHA before proceeding; if none has appeared,
      wait and retry rather than reading a stale verdict.
