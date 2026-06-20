@@ -81,7 +81,14 @@ git worktree prune -v
 
 ### 3. Classify each linked worktree
 
-For every worktree except the main and the current one:
+Refresh remote-tracking state **once** up front so the merged / `[gone]` checks
+below are accurate:
+
+```bash
+git fetch --prune origin
+```
+
+Then, for every worktree except the main and the current one:
 
 #### a. Dirty check — uncommitted work
 
@@ -96,16 +103,21 @@ git -C <path> rev-parse --abbrev-ref HEAD                 # the branch
 git rev-list --count origin/main..<branch>                # commits ahead of main
 git rev-list --count <branch>@{upstream}..<branch> 2>/dev/null \
   || echo "no-upstream"                                   # unpushed commits (or no remote)
+gh pr list --head <branch> --state open --json number,url  # open PR? (glab mr list on GitLab)
 ```
 
 Ahead of main **and** (unpushed or no upstream) → **Dirty** (unpushed work),
-skip. Ahead of main but fully pushed with an **open PR** → **Active**, skip.
+skip. Ahead of main but fully pushed, or carrying an **open PR** → **Active**,
+skip.
 
 #### c. Branch-landed check — is the work safely on main?
 
 ```bash
-git fetch --prune origin
-git branch --merged origin/main | grep -qx "  <branch>" && echo MERGED
+# --format gives plain names — plain `git branch --merged` prefixes a branch
+# checked out in a linked worktree with `+` (not two spaces), so a fixed-column
+# grep would miss every branch this skill evaluates.
+git branch --merged origin/main --format='%(refname:short)' \
+  | grep -qx "<branch>" && echo MERGED
 git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads \
   | grep -E "^<branch> .*\[gone\]" && echo GONE
 ```
@@ -116,8 +128,10 @@ returned 0) → the work has landed.
 #### d. Live-session check — is another session using it?
 
 ```bash
-~/.claude/skills/session-lock/scripts/ai-session.sh list --all 2>/dev/null \
-  | grep -F "<path>"        # any live record on this worktree → ACTIVE, skip
+# Plain `list` (NOT `--all`) — it prunes stale records and shows only LIVE
+# sessions, so a worktree whose session already died won't be flagged Active.
+~/.claude/skills/session-lock/scripts/ai-session.sh list 2>/dev/null \
+  | grep -F "<path>"        # a live record on this worktree → ACTIVE, skip
 ```
 
 (If `session-lock` isn't installed, skip this check — fall back to the dirty and
