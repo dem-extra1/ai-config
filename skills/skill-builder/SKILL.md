@@ -123,9 +123,9 @@ subagent starts fresh: it sees only the prompt the orchestrator hands it, not
 this skill's text. Any discipline the work depends on (the exact query, the
 bot-login wording, how to resolve owner/repo, "read the LATEST review") has to be
 restated inside the subagent prompt, not assumed inherited. Keep the cheap,
-once-per-run setup (enumerating the items, fields the orchestrator already holds)
-in the orchestrator and pass results down so each subagent doesn't re-fetch them.
-`pr-status-all` is the worked example.
+once-per-run setup in the orchestrator — enumerate the work items there, and pass
+down the per-item data the orchestrator already holds so each subagent doesn't
+re-fetch it. `pr-status-all` is the worked example.
 
 ## If the skill encodes a standing rule
 
