@@ -41,7 +41,7 @@ Pick the narrowest target the user named, in this precedence order:
    `memories/tools.md`); audit only the references the diff *introduces*.
 2. **The memory/instruction corpus** — the ai-config repo's `memories/`,
    `skills/`, and `CLAUDE.md`. Find the repo root with
-   `git -C ~/.claude/skills rev-parse --show-toplevel`.
+   `git -C ~/.claude/skills/purge-hallucinations rev-parse --show-toplevel`.
 3. **The current repo's code & docs** — when the user says "this repo" or
    names no target while inside a project.
 
