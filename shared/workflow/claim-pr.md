@@ -1,7 +1,7 @@
 Before starting a work session on a GitHub PR or issue --- i.e. before fetching
-the branch, making edits, or invoking `@claude` review cycles --- post a brief
-comment on the PR/issue so other people and the `@claude` CI bot know not to
-start a conflicting parallel session.
+the branch, making edits, or invoking an automated review cycle --- post a brief
+comment on the PR/issue so other people and any automated review bots know not
+to start a conflicting parallel session.
 
 Use:
 

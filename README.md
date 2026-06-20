@@ -186,8 +186,10 @@ two consumers pull it in:
   `@shared/writing/plain-prose.md`). Harness-only specifics (skill names, queue
   keywords) stay inline in `CLAUDE.md` around the import.
 - **The lab manual** transcludes the same file with `{{< include
-  .ai-config/shared/<topic>.md >}}`, via its `.ai-config` git submodule (this
-  repo). Manual-specific framing stays in the `.qmd` around the include.
+  .ai-config/shared/<area>/<topic>.md >}}` (e.g.
+  `.ai-config/shared/writing/plain-prose.md`), via its `.ai-config` git
+  submodule (this repo). Manual-specific framing stays in the `.qmd` around the
+  include.
 
 Conventions for fragments:
 

@@ -1,4 +1,4 @@
-"Fully clean" is the terminal state every ARDI / iterate loop drives toward.
+"Fully clean" is the terminal state the ARDI review loop drives toward.
 A PR/MR is **fully clean** when **both** of these hold:
 
 1. **All CI workflows are green.** Every required check passes --- not just the
