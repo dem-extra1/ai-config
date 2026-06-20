@@ -153,3 +153,10 @@
 - After implementing a feature or fix, ALWAYS commit and push immediately — don't wait
   for the user to ask "why haven't you pushed?" The implementation isn't done until the
   code is committed, pushed, and (if applicable) an MR is opened.
+- Write user-facing prose in my preferred style: limit dependent (subordinate) clauses,
+  cut low-content filler and jargon ("in order to" → "to", "utilize"/"leverage" → "use",
+  drop "it's worth noting"), prefer short simple declarative sentences, and join ideas with
+  coordinating conjunctions (and/but/so/or) over subordinate constructions. Apply this by
+  default to my OWN drafts, not just on request. Keep meaning, scope, and load-bearing
+  hedges exact. (see the `use-preferred-style` skill, alias `style`; the `find-ai-tells`
+  detector is the scan-after counterpart.)

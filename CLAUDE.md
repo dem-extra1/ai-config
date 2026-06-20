@@ -188,3 +188,29 @@ definitions where feasible**:
 This is a readability/maintainability default, not an absolute rule — keep the
 nesting when flattening it would be more convoluted (a trivial one-argument
 wrapper, or a closure that genuinely needs the enclosing scope).
+
+## Writing style: plain, direct prose
+
+Write user-facing prose in a plain, direct style. This applies to everything I
+read — PR/issue/commit text, docs, READMEs, code comments, release notes,
+emails, and chat replies. Apply it by default to your own drafts, not just when
+asked.
+
+Four rules:
+
+- **Limit dependent (subordinate) clauses.** One per sentence is plenty. When
+  two or more stack up, split the sentence.
+- **Cut low-content filler and jargon.** Delete words that add no information
+  ("it's worth noting", "in order to"). Swap jargon for the plain word
+  ("utilize"/"leverage" → "use").
+- **Prefer simple declarative sentences.** Subject, verb, point. Short beats
+  clever.
+- **Join independent clauses with coordinating conjunctions** (and, but, so, or)
+  over subordinate constructions. Prefer "X is fast, but Y is correct" over
+  "While X is fast, Y is correct."
+
+This is a default, not an absolute rule. Keep a clause or a technical term when
+removing it would lose meaning or precision. Never trade an honest hedge for
+false confidence. The `use-preferred-style` skill (alias `style`) spells out the
+procedure and a filler/jargon swap table; the `find-ai-tells` skill is the
+scan-after detector counterpart.
