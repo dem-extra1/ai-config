@@ -33,7 +33,9 @@ finding → push → post summary → re-request review → repeat until clean.
    Before treating those findings as outstanding work, **diff the current code
    against each one** to see what's already addressed — then push only what's
    genuinely needed and let a fresh review confirm. Re-applying fixes that are
-   already in the tree wastes a round and muddies the diff.
+   already in the tree wastes a round and muddies the diff. If *nothing*
+   remains outstanding (every finding is already applied), don't push an empty
+   commit — skip to step 6 and re-request the review directly.
 
 3. **ARD every finding.** For each flagged item, choose exactly one:
    - **Address** — fix it, commit.

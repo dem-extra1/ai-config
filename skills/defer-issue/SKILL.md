@@ -64,7 +64,7 @@ misses:
 
 ```sh
 gh issue list --state all --search "<keywords>" --json number,title,state
-# GitLab: glab issue list --all -S "<keywords>"
+# GitLab: glab issue list --all --search "<keywords>"   # --all (-A) = open + closed
 ```
 
 - If an **open** issue already covers it, link that one instead of filing —
