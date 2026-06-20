@@ -71,9 +71,11 @@ Fill in `<N>`, `<headRefName>`, `<owner>`, `<repo>` for each PR:
 >    gh pr view <N> --json comments \
 >      --jq '[.comments[] | select(.author.login | startswith("claude"))] | last | .body'
 >    ```
->    The reviewer login varies (`claude`, `claude[bot]`, `github-actions[bot]`);
->    `startswith("claude")` covers the common cases. If the result is `null`,
->    **never report "clean"** — broaden the filter or say no review was found.
+>    The reviewer login varies by setup: `gh pr view` reports `claude`; the
+>    REST API reports `claude[bot]`. `startswith("claude")` matches both. If the
+>    result is `null`, the reviewer may post as `github-actions[bot]` or another
+>    login — **never report "clean"**; broaden the filter or say no review was
+>    found.
 >    The bar for `clean`: "Looks good" / "no findings" / "approved" with zero
 >    follow-on bullets under any heading. A rebuttal the reviewer still disputes
 >    is **open**, not clean.
@@ -91,8 +93,10 @@ Fill in `<N>`, `<headRefName>`, `<owner>`, `<repo>` for each PR:
 >              | select(.isResolved | not)] | length'
 >    ```
 >    >0 means not fully clean even if the body says "approved".
-> 4. **Behind main?** — `git fetch origin main -q && git rev-list --count
->    <headRefName>..origin/main`. >0 means main has moved ahead.
+> 4. **Behind main?** — fetch the head ref too (a fresh subagent has no local
+>    branch), then compare remote-tracking refs: `git fetch origin main
+>    <headRefName> -q && git rev-list --count origin/<headRefName>..origin/main`.
+>    >0 means main has moved ahead.
 >
 > Return: PR number, CI (✅/❌-with-name/⏳), review (`clean` / `N open` with the
 > headline finding / `none found` / `in-flight`), threads (`resolved` / `N
@@ -138,9 +142,9 @@ A Markdown table, one row per open PR, with these columns:
 
 | PR | Title | Branch | CI | Review | Threads | Behind main |
 
-- **PR** — make the number a bare clickable URL
-  (`https://github.com/<owner>/<repo>/pull/<N>`), not plain text, so it's
-  one-click in the terminal.
+- **PR** — make the number a markdown link,
+  `[#<N>](https://github.com/<owner>/<repo>/pull/<N>)` (repo policy — never a
+  bare `#N`), so it's one-click and compact.
 - **CI** — ✅ / ❌ (name the failing check) / ⏳ pending.
 - **Review** — `clean`, `N open` (with the headline finding), `none found`
   (filter didn't match / no review yet), or `in-flight` if a review run is
