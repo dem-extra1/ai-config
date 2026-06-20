@@ -94,10 +94,13 @@ go read the history first (step 2).
    (a `git pull` is a merge *or* a rebase underneath — check which):
    ```bash
    git add <file> …
-   git commit                 # merge / revert with no auto-message → also: git revert --continue
+   git commit                 # merge (message prefilled from MERGE_MSG)
    git rebase --continue      # rebase (incl. `git pull --rebase`)
    git cherry-pick --continue # cherry-pick
-   git stash drop             # stash pop: nothing to commit; drop the now-applied stash
+   git revert --continue      # revert (message prefilled)
+   # stash pop: no commit/continue — `git add` the resolution, then `git stash drop`.
+   #   A conflicted pop does NOT auto-drop the stash, and dropping it is
+   #   independent of committing: the resolved changes stay as working-tree edits.
    ```
 
 ## ⚠️ "ours" and "theirs" flip between merge and rebase
