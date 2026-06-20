@@ -60,7 +60,8 @@ review* will silently misreport:
 
 A subagent starts **fresh** — it sees only this prompt, not this skill file —
 so **inline the exact commands**; don't point it at a section it can't read.
-Fill in `<N>`, `<headRefName>`, `<owner>`, `<repo>` for each PR:
+Fill in `<N>`, `<headRefName>`, `<owner>`, `<repo>` for each PR (resolve
+owner/repo once with `gh repo view --json owner,name --jq '"\(.owner.login)/\(.name)"'`):
 
 > Gather the status of PR **#<N>** (branch `<headRefName>`) in this repo and
 > return a single structured row. Do not push, merge, or modify anything.
