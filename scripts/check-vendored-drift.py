@@ -26,28 +26,29 @@ def sha256_of(path: Path) -> str:
 
 
 def check_manifest(manifest_path: Path, errors: list[str]) -> int:
+    rel = manifest_path.relative_to(REPO_ROOT)
     try:
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        errors.append(f"{manifest_path}: cannot read manifest ({exc})")
+        errors.append(f"{rel}: cannot read manifest ({exc})")
         return 0
     files = data.get("files")
     if not isinstance(files, list):
-        errors.append(f"{manifest_path}: 'files' missing or not a list")
+        errors.append(f"{rel}: 'files' missing or not a list")
         return 0
     verified = 0
     for entry in files:
         path_str = entry.get("path")
         expected = entry.get("sha256")
         if not path_str or not expected:
-            errors.append(f"{manifest_path}: entry missing 'path' or 'sha256': {entry!r}")
+            errors.append(f"{rel}: entry missing 'path' or 'sha256': {entry!r}")
             continue
         vendored = REPO_ROOT / path_str
         if not vendored.resolve().is_relative_to(REPO_ROOT):
             errors.append(f"{path_str}: path escapes the repo root; refusing to read")
             continue
         if not vendored.is_file():
-            errors.append(f"{path_str}: listed in {manifest_path.name} but missing on disk")
+            errors.append(f"{path_str}: listed in {rel.name} but missing on disk")
             continue
         actual = sha256_of(vendored)
         if actual != expected:
