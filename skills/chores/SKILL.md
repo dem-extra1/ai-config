@@ -189,6 +189,10 @@ bump is sitting unflagged.
 
 ## Relationship to other skills
 
+- **`check-dependency-updates` / `cdu`** — the audit counterpart. `cdu` *finds*
+  stale pins and opens/drives the bumps itself (or recommends a `dependabot.yml`
+  that automates them); `chores` *processes* the bump PRs that land. Use `cdu`
+  to catch what Dependabot misses, `chores` to clear what it opens.
 - **`ardia` / `gia`** — the human-PR counterpart (drive feature PRs to a clean
   *review* verdict). `chores` is the bot-PR counterpart (CI-gated bumps). Don't
   run `ardi` on a Dependabot PR — `@claude` review is skipped on them by design.
