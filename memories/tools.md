@@ -4,21 +4,28 @@
 - `gh` opens a pager (alternate buffer) that hangs the agent terminal.
 - Always disable it: pipe `| cat` or set `GH_PAGER=cat` (e.g. `gh pr view 116 | cat`).
 
-## Re-triggering the @claude PR *review* (d-morrison Quarto / R-pkg repos)
-- The review workflow (`.github/workflows/claude-code-review.yml`, which calls
-  `d-morrison/gha`'s reusable review workflow) is **not** comment-triggered. It
-  runs on `pull_request` (`types: [opened, synchronize, ready_for_review,
-  reopened]`) and on `workflow_dispatch` (input `pr_number`). Posting an
-  `@claude review` *comment* drives the separate agent workflow `claude.yml`
-  (which then re-dispatches a review after it pushes) — it does not directly
-  fire the review workflow.
+## Re-triggering the @claude PR *review* (d-morrison Quarto / R-pkg repos, e.g. `psw`)
+- Filenames below are those in the **content/package repos** (verified in
+  `d-morrison/psw`): the review workflow is `.github/workflows/claude-code-review.yml`
+  and the comment-triggered agent workflow is `.github/workflows/claude.yml`.
+  (ai-config's *own* bot uses different names — `claude-review.yml` /
+  `claude-bot.yml` — so don't infer these from *this* repo's `.github/workflows/`.)
+- The review workflow (which calls `d-morrison/gha`'s reusable review workflow)
+  is **not** comment-triggered. It runs on `pull_request` (`types: [opened,
+  synchronize, ready_for_review, reopened]`) and on `workflow_dispatch` (input
+  `pr_number`). Posting an `@claude review` *comment* drives the separate agent
+  workflow `claude.yml` (which then re-dispatches a review after it pushes) — it
+  does not directly fire the review workflow.
 - A new push (`synchronize`) auto-fires a fresh review — the normal path during
   an iterate loop.
 - To force a fresh review on an existing PR **without a new commit**:
   - **workflow_dispatch** (preferred — no extra PR timeline noise):
-    `gh workflow run claude-code-review.yml -f pr_number=<N>`, or via MCP
-    `mcp__github__actions_run_trigger` (workflow `claude-code-review.yml`,
-    inputs `{pr_number: "<N>"}`). Use in remote/web sessions where `gh` is absent.
+    `gh workflow run claude-code-review.yml -f pr_number=<N>`. Without `gh`
+    (remote/web sessions), use the REST workflow-dispatch endpoint —
+    `POST /repos/<owner>/<repo>/actions/workflows/claude-code-review.yml/dispatches`
+    with body `{"ref":"<pr-branch>","inputs":{"pr_number":"<N>"}}` — or your
+    GitHub MCP workflow-dispatch tool if available (e.g.
+    `mcp__github__actions_run_trigger`).
   - **Close + reopen the PR** → fires the `reopened` event, which re-runs the
     review. Works reliably, but clutters the timeline with close/reopen events;
     prefer workflow_dispatch unless dispatch isn't available.
