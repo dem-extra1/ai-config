@@ -35,6 +35,7 @@ def check_manifest(manifest_path: Path, errors: list[str]) -> int:
     if not isinstance(files, list):
         errors.append(f"{manifest_path}: 'files' missing or not a list")
         return 0
+    verified = 0
     for entry in files:
         path_str = entry.get("path")
         expected = entry.get("sha256")
@@ -42,6 +43,9 @@ def check_manifest(manifest_path: Path, errors: list[str]) -> int:
             errors.append(f"{manifest_path}: entry missing 'path' or 'sha256': {entry!r}")
             continue
         vendored = REPO_ROOT / path_str
+        if not vendored.resolve().is_relative_to(REPO_ROOT):
+            errors.append(f"{path_str}: path escapes the repo root; refusing to read")
+            continue
         if not vendored.is_file():
             errors.append(f"{path_str}: listed in {manifest_path.name} but missing on disk")
             continue
@@ -52,7 +56,9 @@ def check_manifest(manifest_path: Path, errors: list[str]) -> int:
                 f"file {actual[:12]}...). Don't edit vendored copies; "
                 f"edit upstream and let the sync workflow refresh them."
             )
-    return len(files)
+            continue
+        verified += 1
+    return verified
 
 
 def main() -> int:

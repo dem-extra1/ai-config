@@ -1,5 +1,6 @@
 {
   "source_repo": "UCD-SERG/lab-manual",
+  "source_ref": "main",
   "files": [
     {
       "path": "shared/vendored/prompt-formats.md",
