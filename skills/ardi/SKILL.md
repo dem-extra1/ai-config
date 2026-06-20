@@ -1,6 +1,6 @@
 ---
 name: ardi
-description: "ARD + Iterate: apply the ARD framework within an iterate loop on a single PR/MR. Read the latest review, Address/Rebut/Defer every finding, push fixes, post the ARD summary, then re-request review — repeating until the verdict is clean. Use when asked to 'ardi', 'dc', 'drive to clean', 'iterate this MR', 'drive this PR to clean', or after receiving a review you want to resolve completely."
+description: "ARD + Iterate: apply the ARD framework within an iterate loop on a single PR/MR. Read the latest review, Address/Rebut/Defer every finding, push fixes, post the ARD summary, then re-request review — repeating until the verdict is clean. Use when asked to 'ardi', 'dc', 'drive to clean', 'iterate', 'iterate until clean', 'iterate this MR', 'drive this PR to clean', 'address the review comments', '@claude review again and fix what it finds', or after receiving a review you want to resolve completely / carry a PR all the way to mergeable."
 user-invocable: true
 allowed-tools:
   - Bash
@@ -23,7 +23,24 @@ finding → push → post summary → re-request review → repeat until clean.
    Skip if your most recent comment already says so.
 
 2. **Read the latest review.** Pull the most recent reviewer comment (bot or
-   human). Don't trust earlier cached verdicts.
+   human). Don't trust earlier cached verdicts — actively poll until a review
+   appears that references the commit you just pushed, then read **that** one.
+   `gh pr checks` / `glab ci list` going green is about **CI state**, not the
+   review verdict — always parse the latest review *body* for findings.
+
+   - **GitHub:**
+     ```bash
+     gh pr view <N> --json comments \
+       --jq '[.comments[] | select(.author.login | startswith("claude"))] | last | .body'
+     ```
+     The reviewer's bot login varies by setup — `gh pr view` reports it as
+     `claude`, the REST API as `claude[bot]`, and some setups post as
+     `github-actions[bot]`. `startswith("claude")` matches across `gh pr view`
+     and `gh api`; broaden it if your reviewer posts under another login, or
+     you'll silently read `null` and false-pass.
+   - **GitLab:** poll the MR notes (`sort=desc`) for a review note that
+     references your latest short SHA before proceeding; if none has appeared,
+     wait and retry rather than reading a stale verdict.
 
    **If the latest review is a cancellation, the live verdict is stale —
    don't re-do already-applied fixes.** A `cancel-in-progress` cancellation
@@ -37,12 +54,24 @@ finding → push → post summary → re-request review → repeat until clean.
    remains outstanding (every finding is already applied), don't push an empty
    commit — skip to step 6 and re-request the review directly.
 
-3. **ARD every finding.** For each flagged item, choose exactly one:
+3. **ARD every finding — regardless of severity label.** "Not a blocker",
+   "minor", "nit", "optional", "consider", "if you want" are for the user's
+   prioritization, not a pass for the implementer. For each flagged item,
+   choose exactly one:
    - **Address** — fix it, commit.
    - **Rebut** — explain why it's correct (with evidence).
-   - **Defer** — file a follow-up issue, link it.
+   - **Defer** — file a follow-up issue, link it (use the `defer-issue` skill).
 
-4. **Push fixes** (if any). Sync with main first if it moved ahead.
+4. **Push fixes** (if any). If main moved ahead of the branch, sync it in
+   *before* you push, so the next review evaluates against current main:
+   ```bash
+   git fetch origin main
+   git log --oneline ..origin/main | head   # any commits? merge them in
+   git merge origin/main
+   ```
+   Resolve conflicts, run the repo's pre-commit checks, then push. Don't
+   rebase/squash a published branch — a merge commit matches GitHub's "Update
+   branch" button. (The `sync-pr-branch` skill does exactly this.)
 
 5. **Post the ARD summary** as a comment on the MR/PR (table format per the
    ARD skill).
