@@ -41,7 +41,7 @@ Rule out extending an existing skill *before* scaffolding anything:
    another CLI session, or the `@claude` bot may already be adding it. A
    parallel CLI session usually builds its skill in an **unpushed local
    worktree**, so a remote-only `git branch -r` scan misses it entirely (this
-   bit PR #67 — a sibling skill was caught only by a stray system-reminder, not
+   hit PR #67 — a sibling skill was caught only by a stray system-reminder, not
    the scan). Scan local refs *and* the worktree working trees too:
    ```bash
    git fetch origin --prune
