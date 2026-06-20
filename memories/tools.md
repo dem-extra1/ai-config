@@ -69,8 +69,7 @@
   scout-peers, etc.), run two scans: `git branch -a` for local + remote refs
   (catches committed-but-unpushed local branches), and the `git worktree list`
   working trees for *untracked* files that never reached any ref
-  (`git -C <wt> ls-files --others --exclude-standard -- 'skills/**'`). See
-  [[use-isolated-worktree-for-ai-config]].
+  (`git -C <wt> ls-files --others --exclude-standard -- 'skills/'`).
 
 ## GitLab Discussions API (inline diff comments)
 - Endpoint: `POST /projects/:id/merge_requests/:iid/discussions`
