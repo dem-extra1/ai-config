@@ -70,7 +70,10 @@ gh pr list --state closed --limit 100 \
 
 ```bash
 glab issue list --closed --per-page 100 2>&1 | cat
-glab mr list --state closed --per-page 100 2>&1 | cat   # then drop merged ones
+# GitLab keeps "closed" and "merged" as separate MR states, so --closed already
+# excludes merged MRs — no extra filtering needed (unlike gh, where closed
+# includes merged):
+glab mr list --closed --per-page 100 2>&1 | cat
 ```
 
 ### 2. Score what's worth reviving
@@ -138,10 +141,10 @@ git apply /tmp/pr-<N>.patch   # resolve any rejects, run the repo's checks
 - **`check-history`** — read-only look back at merged + closed history before
   acting. `rescue-closed` is its action counterpart: it brings the worthwhile
   closed items back rather than just reading them.
-- **`recover-followups` (`rfu`)** — the sibling sweep that mines closed items'
-  *content* for untracked follow-up sub-tasks and files fresh issues, instead of
-  reopening the item itself. Use it when the value is a buried promise, not the
-  whole closed item.
+- **`recover-followups`** *(sibling skill — PR pending)* — the sweep that mines
+  closed items' *content* for untracked follow-up sub-tasks and files fresh
+  issues, instead of reopening the item itself. Use it when the value is a buried
+  promise, not the whole closed item.
 - **`gi` / `gii` / `st`** — implement a revived issue.
 - **`ardi`** — drive a reopened or recreated PR to clean.
 - **`claim-pr`** — claim the issue/PR before working it.
