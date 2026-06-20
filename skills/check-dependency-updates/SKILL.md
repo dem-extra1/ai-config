@@ -62,7 +62,7 @@ Pins come in two forms:
   If the SHA differs, update **both** the SHA and the trailing `# vX.Y.Z`
   comment together — a stale comment next to a fresh SHA is its own bug.
 
-Going forward, a `.github/dependabot.yml` with the `github-actions` ecosystem
+A `.github/dependabot.yml` with the `github-actions` ecosystem
 automates this sweep. Recommend it if the repo has none; this skill is the
 on-demand / one-off audit and the catch-all for what Dependabot misses.
 
@@ -109,7 +109,7 @@ gh api repos/quarto-dev/quarto-cli/releases/latest --jq '.tag_name'
 ```bash
 git submodule status
 # for each submodule, see whether upstream has moved:
-git -C <submodule> fetch && git -C <submodule> log HEAD..origin/HEAD --oneline
+git -C <submodule-path> fetch && git -C <submodule-path> log HEAD..FETCH_HEAD --oneline
 ```
 
 ### 6. Other manifests, if present
@@ -121,17 +121,20 @@ git -C <submodule> fetch && git -C <submodule> log HEAD..origin/HEAD --oneline
 
 ## Reporting and follow-through
 
-1. **Report a table**, one row per dependency: current pin, latest available,
-   and what the update buys (link the release notes / NEWS / CHANGELOG; flag
-   security fixes — those are the highest-value rows). Read the changelog before
-   recommending a bump, especially across a major version.
-2. **File a tracking issue** for the updates worth taking (issue-first, per the
+1. **Read the changelog before recommending each bump.** Fetch and skim the
+   release notes / NEWS / CHANGELOG (use `WebFetch` on the upstream releases or
+   NEWS page), especially across a major version, so you can say what the update
+   buys and catch breaking changes.
+2. **Report a table**, one row per dependency: current pin, latest available,
+   and what the update buys, with the changelog linked. Flag security fixes —
+   those are the highest-value rows.
+3. **File a tracking issue** for the updates worth taking (issue-first, per the
    repo's workflow — see `st` / `gi`). Group related bumps; don't open one issue
    per trivial patch.
-3. **Apply on a branch**, run the repo's standard checks (render / lint / spell
+4. **Apply on a branch**, run the repo's standard checks (render / lint / spell
    / tests), and open a PR. Keep unrelated bumps in separate PRs so a single bad
    update is easy to revert.
-4. **ARDI the PR to clean** (see `ardi`).
+5. **ARDI the PR to clean** (see `ardi`).
 
 ## Cautions
 
@@ -141,7 +144,7 @@ git -C <submodule> fetch && git -C <submodule> log HEAD..origin/HEAD --oneline
   choice, and a major-version floor in `DESCRIPTION` may be intentional. Refresh
   the pin to a newer *vetted* version; don't remove the pinning in the name of
   freshness.
-- **Update SHA and comment together** (see §1).
+- **Update SHA and comment together** (see §1, GitHub Actions pins above).
 - **`renv.lock` is not a trivial file.** Editing it changes what every
   collaborator and CI job installs — treat a lockfile bump like any other code
   change: branch, test, review.
