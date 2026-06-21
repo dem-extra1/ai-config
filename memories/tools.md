@@ -177,9 +177,9 @@
   worktree's `skills/<name>/` dir (full rationale in `skill-builder`'s Ship-it
   caveat).
 - **Use `<angle-bracket>` placeholders in command blocks — never bare ALLCAPS.**
-  `PATH`, `URL`, `TARGET`, etc. look like shell env vars: `PATH` is literally
-  `$PATH`, and `path` is a zsh read-only special. A reader who copies the
-  command without substituting the placeholder runs something wrong or invalid.
+  `PATH`, `URL`, `TARGET`, etc. look like shell env vars: bare `PATH` looks like
+  the `$PATH` env var, and `path` is a zsh special that mirrors `$PATH`. A reader
+  who copies the command without substituting the placeholder runs something wrong.
   Use `<path>`, `<url>`, `<target>` instead. (PR #99 fixed `test -e PATH` →
   `test -e <path>` and `curl … URL` → `curl … <url>` in purge-hallucinations.)
 
