@@ -84,6 +84,8 @@ when the issue already exists.
 <!-- Shared with the lab manual; edit shared/workflow/upstream-issues.md, not here. -->
 @shared/workflow/upstream-issues.md
 
+The `sup` / `send-upstream` skill operationalizes these steps (issue path, PR path, and the local link-back).
+
 ## Wrap up a merged PR with UMS
 
 When a PR/MR you were working on **merges**, run the `post-merge` skill:
