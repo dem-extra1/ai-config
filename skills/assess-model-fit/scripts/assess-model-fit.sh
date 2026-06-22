@@ -55,7 +55,7 @@ Run `/select-model` anyway if you're uncertain about task complexity.
 
 1. Review the checklist above against your task
 2. Look up your task type in the decision tree
-3. If no match, run `/select-model "your task description"` for personalized advice
+3. If no match, run `/select-model --task "your task description"` for personalized advice
 4. If escalation needed, the recommended model will be provided
 EOF
 }
