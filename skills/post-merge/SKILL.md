@@ -76,10 +76,12 @@ git -C "$REPO" branch -d <merged-branch>
 ```
 
 **Diverged main checkout:** `git pull --ff-only` fails when the main checkout
-has local commits from a concurrent session that haven't been pushed. Don't
+has local commits from a concurrent session that hasn't been pushed. Don't
 force-merge or reset their work — skip the pull and delete the branch only.
 The branch deletion is what matters; another session will pull main when it's
-ready.
+ready. If `git branch -d` refuses because local `main` doesn't yet include
+the merge (diverged HEAD, remote branch already deleted), use `git branch -D` —
+step 1 already confirmed the PR is merged, so the force-delete is safe here.
 
 For a repo-wide sweep of *all* dead worktrees (not just this PR's), run
 `clean-worktrees` (`cw`).
