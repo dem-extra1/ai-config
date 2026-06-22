@@ -121,7 +121,7 @@ score_task_complexity() {
     fi
 
     if [[ "$task_desc" =~ [Dd]ocument|[Ww]rite.doc|[Cc]omment|[Rr]eadme ]]; then
-        score=$(( score + 1 ))
+        score=$(( score + 2 ))
         keywords="$keywords documentation"
     fi
 
@@ -170,7 +170,7 @@ get_model_display_name() {
 get_current_model() {
     if [[ -f ~/.claude/settings.json ]]; then
         grep -o '"model"[[:space:]]*:[[:space:]]*"[^"]*"' ~/.claude/settings.json 2>/dev/null | \
-            head -1 | cut -d'"' -f4 || true
+            head -1 | cut -d'"' -f4 || echo "${CLAUDE_MODEL:-}"
     else
         echo "${CLAUDE_MODEL:-}"
     fi

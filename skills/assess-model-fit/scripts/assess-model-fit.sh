@@ -122,15 +122,20 @@ model_tier() {
 
 show_executable_mode() {
     local task_desc="$1"
+    local current_model_raw
+    current_model_raw=$(get_current_model)
     local current_model
-    current_model=$(get_current_model)
+    current_model=${current_model_raw#claude-}
     local complexity
     complexity=$(score_task_complexity "$task_desc")
     local recommended
     recommended=$(recommend_model "$complexity")
 
-    # Normalize model names
-    current_model=${current_model#claude-}
+    # Get tier from original model string before stripping prefix
+    local current_tier
+    current_tier=$(model_tier "$current_model_raw")
+    local recommended_tier
+    recommended_tier=$(model_tier "$recommended")
 
     echo ""
     echo -e "${BLUE}## Model Fit Assessment${NC}"
@@ -139,11 +144,6 @@ show_executable_mode() {
     echo "**Task complexity score:** $complexity / 10"
     echo "**Recommended model:** $recommended (estimated)"
     echo ""
-
-    local current_tier
-    current_tier=$(model_tier "$current_model")
-    local recommended_tier
-    recommended_tier=$(model_tier "$recommended")
 
     if [[ "$complexity" -lt 2 ]]; then
         echo -e "${GREEN}✓ Current model is adequate for this task.${NC}"
