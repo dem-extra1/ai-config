@@ -85,10 +85,13 @@ gh api graphql -f query='query {
   end'
 ```
 
-A result of `"0"` means all threads are resolved — fully clean on this
-dimension. Any other output (a number, or a `+`-suffixed string) means threads
-are open. The `+` suffix signals the cap was reached and the true count may be
-higher. (The resolve mutation lives in the `ard` skill, step 4b.)
+Interpret the output as:
+
+- `0` — all threads resolved; clean on this dimension.
+- A plain non-zero number (e.g. `3`) — that many threads are unresolved.
+- A `+`-suffixed string (e.g. `0+ open (totalCount 150; cap reached — may undercount)`) — the 100-thread cap was hit. **Cannot confirm clean**, even if the visible count is 0; treat as unresolved until the cap is lifted or the PR is confirmed clean another way.
+
+(The resolve mutation lives in the `ard` skill, step 4b.)
 
 ## Output
 

@@ -100,17 +100,18 @@ owner/repo once with `gh repo view --json owner,name --jq '"\(.owner.login)/\(.n
 >      else "\($open)"
 >      end'
 >    ```
->    A result of `"0"` means all threads are resolved. Any other output means
->    threads are open; a `+` suffix signals the cap was reached and the true
->    count may be higher.
+>    Interpret the output as: `0` = all resolved (clean); a plain non-zero
+>    number = that many unresolved threads; a `+`-suffixed string (e.g.
+>    `0+ open (totalCount 150; cap reached — may undercount)`) = the 100-thread
+>    cap was hit, **cannot confirm clean** — treat as unresolved.
 > 4. **Behind main?** — fetch the head ref too (a fresh subagent has no local
 >    branch), then compare remote-tracking refs: `git fetch origin main
 >    <headRefName> -q && git rev-list --count origin/<headRefName>..origin/main`.
 >    >0 means main has moved ahead.
 >
 > Return: PR number, CI (✅/❌-with-name/⏳), review (`clean` / `N open` with the
-> headline finding / `none found` / `in-flight`), threads (`resolved` / `N
-> open`), behind-main (`up to date` / `N commits`).
+> headline finding / `none found` / `in-flight`), threads (`resolved` / `N open`
+> / `N+ open (cap)`), behind-main (`up to date` / `N commits`).
 
 ### 3. Assemble (orchestrator)
 
