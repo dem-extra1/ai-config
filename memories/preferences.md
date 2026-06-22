@@ -176,6 +176,15 @@
   `concurrency: cancel-in-progress` (d-morrison/gha) the two runs cancel each other,
   leaving the latest commit with a canceled, never-posted verdict. If a review ends up
   canceled with no comment, dispatch one cleanly: `gh workflow run claude-review.yml -f pr_number=<N>`.
+- During ARDI loops: always ANTICIPATE what the reviewer will flag next and fix those
+  issues preemptively in the same commit. Don't wait for each round to surface issues
+  one at a time — read the code holistically, think about what patterns the reviewer
+  has flagged in prior rounds (documentation gaps, coupling without cross-references,
+  missing edge-case guards, inconsistent accounting), and fix analogous issues elsewhere
+  in the same file before pushing. The goal is to minimize back-and-forth rounds.
+- During ARDI loops: only stop iterating (without consensus) if you're at a literal
+  impasse — going in circles, redoing and undoing the same changes. Asymptotic new nits
+  each round is NOT an impasse; keep addressing them.
 - Keep the bot's `@`-mention trigger phrase OUT of PR/issue comment prose unless you actually
   intend to dispatch. The `issue_comment` trigger fires on the bare mention ANYWHERE in a
   comment — even in a sentence saying you're NOT triggering a review (e.g. an ARD summary noting
