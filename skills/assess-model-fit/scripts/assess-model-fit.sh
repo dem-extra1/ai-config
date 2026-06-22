@@ -72,7 +72,7 @@ score_task_complexity() {
         score=$(( score + 2 ))
     fi
 
-    if [[ "$task_desc" =~ [Mm]ulti|[Mm]any|[Ll]arge|[Ww]ide ]]; then
+    if [[ "$task_desc" =~ [Mm]any|[Ll]arge|[Ww]ide ]]; then
         score=$(( score + 1 ))
     fi
 
@@ -87,6 +87,10 @@ score_task_complexity() {
     if [[ "$task_desc" =~ [Dd]ocument|[Ww]rite.doc|[Cc]omment|[Rr]eadme ]]; then
         score=$(( score + 1 ))
     fi
+
+    # Clamp to [0, 10]
+    if [[ $score -lt 0 ]]; then score=0; fi
+    if [[ $score -gt 10 ]]; then score=10; fi
 
     echo "$score"
 }
