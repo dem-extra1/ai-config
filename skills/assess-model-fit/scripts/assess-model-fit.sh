@@ -1,0 +1,209 @@
+#!/bin/bash
+# assess-model-fit.sh — dual-mode script for model capability assessment
+# Procedural mode: ./assess-model-fit.sh (no args)
+# Executable mode: ./assess-model-fit.sh --task "task description"
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SKILLS_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+show_procedural_mode() {
+    cat << 'EOF'
+# assess-model-fit: Procedural Mode
+
+## Quick Assessment Checklist
+
+Does your task have any of these characteristics?
+
+- [ ] Deep multi-step reasoning (>5 logical steps, complex dependencies)
+- [ ] Code review rigor (subtle bugs, security, performance, architecture)
+- [ ] Large context window (many files, long documents, substantial history)
+- [ ] Complex decomposition (breaking down ambiguous problem into sub-tasks)
+- [ ] Uncertain scope (vague requirements needing clarification via reasoning)
+- [ ] Novel problem (no standard solution; creative/exploratory thinking needed)
+
+**If you checked ANY box above:** Current model may be insufficient.
+Run `/select-model` to determine the right model for this task.
+
+**If you checked NO boxes:** Current model is likely adequate.
+Run `/select-model` anyway if you're uncertain about task complexity.
+
+## Model Decision Tree
+
+| Task Type | Current Model | Status | Recommendation |
+|-----------|---------------|--------|-----------------|
+| Simple query | Haiku | ✓ Adequate | Keep Haiku |
+| Straightforward code gen | Haiku | ✓ Adequate | Keep Haiku |
+| Multi-step task | Sonnet | ✓ Adequate | Keep Sonnet |
+| Code review (medium) | Sonnet | ✓ Adequate | Keep Sonnet |
+| Complex architecture | Opus | ✓ Adequate | Keep Opus |
+| Subtle bug hunt | Opus | ✓ Adequate | Keep Opus |
+| Simple query | Sonnet | ⚠ Overkill | Consider Haiku for cost |
+| Multi-step task | Haiku | ✗ Insufficient | Escalate to Sonnet |
+| Code review (detailed) | Haiku | ✗ Insufficient | Escalate to Sonnet |
+| Complex architecture | Sonnet | ✗ Insufficient | Escalate to Opus |
+
+## Next Steps
+
+1. Review the checklist above against your task
+2. Look up your task type in the decision tree
+3. If no match, run `/select-model "your task description"` for personalized advice
+4. If escalation needed, the recommended model will be provided
+EOF
+}
+
+score_task_complexity() {
+    local task_desc="$1"
+    local score=0
+    local flags=()
+
+    # Red flag patterns
+    if [[ "$task_desc" =~ [Cc]omplex|[Aa]rchitecture|[Dd]eep|[Rr]efactor ]]; then
+        ((score += 2))
+        flags+=("Complex reasoning detected")
+    fi
+
+    if [[ "$task_desc" =~ [Rr]eview|[Bb]ug|[Ss]ecurity|[Pp]erformance ]]; then
+        ((score += 2))
+        flags+=("Code review/quality analysis detected")
+    fi
+
+    if [[ "$task_desc" =~ [Mm]ulti|[Mm]any|[Ll]arge|[Ww]ide ]]; then
+        ((score += 1))
+        flags+=("Large scope detected")
+    fi
+
+    if [[ "$task_desc" =~ [Dd]esign|[Pp]lan|[Aa]nalysis|[Rr]esearch ]]; then
+        ((score += 2))
+        flags+=("Exploratory/design work detected")
+    fi
+
+    if [[ "$task_desc" =~ [Mm]ulti-step|[Dd]ecompos|[Ss]tep-by-step|[Cc]ompose ]]; then
+        ((score += 1))
+        flags+=("Multi-step reasoning detected")
+    fi
+
+    echo "$score"
+}
+
+get_current_model() {
+    # Try to read from .claude/settings.json
+    if [[ -f ~/.claude/settings.json ]]; then
+        grep -o '"model"[[:space:]]*:[[:space:]]*"[^"]*"' ~/.claude/settings.json | \
+            head -1 | cut -d'"' -f4 || echo "unknown"
+    else
+        # Fall back to env variable if set
+        echo "${CLAUDE_MODEL:-unknown}"
+    fi
+}
+
+recommend_model() {
+    local score="$1"
+    local current_model="$2"
+
+    if [[ "$score" -lt 2 ]]; then
+        echo "haiku"
+    elif [[ "$score" -lt 4 ]]; then
+        echo "sonnet"
+    else
+        echo "opus"
+    fi
+}
+
+show_executable_mode() {
+    local task_desc="$1"
+    local current_model=$(get_current_model)
+    local complexity=$(score_task_complexity "$task_desc")
+    local recommended=$(recommend_model "$complexity" "$current_model")
+
+    # Normalize model names
+    current_model=${current_model#claude-}
+    recommended="claude-${recommended}-"
+
+    echo ""
+    echo -e "${BLUE}## Model Fit Assessment${NC}"
+    echo ""
+    echo "**Current model:** $current_model"
+    echo "**Task complexity score:** $complexity / 10"
+    echo "**Recommended model:** $recommended (estimated)"
+    echo ""
+
+    if [[ "$complexity" -lt 2 ]]; then
+        echo -e "${GREEN}✓ Current model is adequate for this task.${NC}"
+        echo ""
+        echo "The task appears straightforward with minimal reasoning complexity."
+        echo "Current model should handle it efficiently."
+        echo ""
+        echo "**To confirm:** Run \`/select-model \"$task_desc\"\` for detailed analysis."
+        return 0
+    elif [[ "$complexity" -lt 4 ]]; then
+        echo -e "${YELLOW}⚠ Marginal fit — current model may be borderline.${NC}"
+        echo ""
+        echo "The task has moderate complexity. Current model might work,"
+        echo "but success isn't guaranteed. A higher-level model is safer."
+        echo ""
+        echo "**Escalating to model selection...**"
+        echo ""
+        return 1
+    else
+        echo -e "${RED}✗ Current model is insufficient for this task.${NC}"
+        echo ""
+        echo "The task requires significant reasoning, code review rigor, or complexity."
+        echo "Current model will struggle. Escalation recommended."
+        echo ""
+        echo "**Escalating to model selection...**"
+        echo ""
+        return 1
+    fi
+}
+
+# Main logic
+if [[ $# -eq 0 ]]; then
+    # Procedural mode: show checklist
+    show_procedural_mode
+else
+    # Executable mode: analyze task
+    case "${1:-}" in
+        --task)
+            if [[ $# -lt 2 ]]; then
+                echo "Error: --task requires a description"
+                echo "Usage: $0 --task \"your task description\""
+                exit 1
+            fi
+            task_description="$2"
+
+            if show_executable_mode "$task_description"; then
+                # No escalation needed
+                exit 0
+            else
+                # Escalation needed — call select-model
+                echo -e "${BLUE}Running /select-model for personalized recommendation...${NC}"
+                echo ""
+
+                # Source select-model script and invoke it
+                select_model_script="${SKILLS_DIR}/select-model/scripts/select-model.sh"
+                if [[ -f "$select_model_script" ]]; then
+                    bash "$select_model_script" --task "$task_description"
+                else
+                    echo "Error: select-model script not found at $select_model_script"
+                    exit 1
+                fi
+            fi
+            ;;
+        *)
+            echo "Error: Unknown argument '$1'"
+            echo "Usage:"
+            echo "  $0                          # Procedural mode (show checklist)"
+            echo "  $0 --task \"description\"     # Executable mode (analyze task)"
+            exit 1
+            ;;
+    esac
+fi
