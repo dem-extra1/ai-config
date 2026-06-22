@@ -165,7 +165,9 @@ get_model_display_name() {
 get_current_model() {
     if [[ -f ~/.claude/settings.json ]]; then
         grep -o '"model"[[:space:]]*:[[:space:]]*"[^"]*"' ~/.claude/settings.json 2>/dev/null | \
-            head -1 | cut -d'"' -f4 || echo ""
+            head -1 | cut -d'"' -f4 || true
+    else
+        echo "${CLAUDE_MODEL:-}"
     fi
 }
 

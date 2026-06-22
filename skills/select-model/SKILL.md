@@ -105,7 +105,7 @@ to use the recommended model for this session.
 
 - **Procedural mode (manual decision tree):** Read this procedure, follow the
   decision tree or task mapping, choose your model.
-- **Executable mode (auto-recommend):** Invoke `/select-model <task description>`
+- **Executable mode (auto-recommend):** Invoke `/select-model --task "<task description>"`
   and the script provides a personalized recommendation and config suggestion.
 - **Chained from assess-model-fit:** If `/assess-model-fit` recommends escalation,
   it auto-invokes `select-model` with your task details.

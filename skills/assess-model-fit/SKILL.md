@@ -66,7 +66,7 @@ you a go-ahead or chains into `select-model` with your task details.
 
 - **Procedural mode (manual checklist):** Read this procedure, run through the
   scoring criteria, decide if escalation is needed.
-- **Executable mode (auto-analysis):** Invoke `/assess-model-fit <your task description>`
+- **Executable mode (auto-analysis):** Invoke `/assess-model-fit --task "<your task description>"`
   and let the script recommend a verdict and model.
 - **When in doubt:** Use executable mode — it's faster and catches nuance the
   manual checklist might miss.

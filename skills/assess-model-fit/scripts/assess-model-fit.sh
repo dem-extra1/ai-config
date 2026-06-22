@@ -100,7 +100,6 @@ get_current_model() {
 
 recommend_model() {
     local score="$1"
-    local current_model="$2"
 
     if [[ "$score" -lt 2 ]]; then
         echo "haiku"
@@ -118,7 +117,7 @@ show_executable_mode() {
     local complexity
     complexity=$(score_task_complexity "$task_desc")
     local recommended
-    recommended=$(recommend_model "$complexity" "$current_model")
+    recommended=$(recommend_model "$complexity")
 
     # Normalize model names
     current_model=${current_model#claude-}
