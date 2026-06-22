@@ -160,8 +160,8 @@ A Markdown table, one row per open PR, with these columns:
 - **Review** — `clean`, `N open` (with the headline finding), `none found`
   (filter didn't match / no review yet), or `in-flight` if a review run is
   still going.
-- **Threads** — `resolved` (none open) or `N open` (unresolved inline review
-  threads).
+- **Threads** — `resolved` (none open), `N open` (unresolved inline review
+  threads), or `N+ open (cap)` (100-thread cap hit — cannot confirm clean).
 - **Behind main** — `up to date` or `N commits` (offer `sync-pr-branch`).
 
 Below the table, list each PR's open findings briefly (or "none"), and call out
