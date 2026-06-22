@@ -84,6 +84,14 @@ score_task_complexity() {
         score=$(( score + 2 ))
     fi
 
+    if [[ "$task_desc" =~ [Ss]imple|[Ss]traightforward|[Bb]asic|[Tt]rivial ]]; then
+        score=$(( score - 2 ))
+    fi
+
+    if [[ "$task_desc" =~ [Qq]uery|[Qq]uestion|[Aa]nswer ]]; then
+        score=$(( score - 1 ))
+    fi
+
     # Clamp to [0, 10]
     if [[ $score -lt 0 ]]; then score=0; fi
     if [[ $score -gt 10 ]]; then score=10; fi
@@ -151,8 +159,6 @@ show_executable_mode() {
     local task_desc="$1"
     local current_model_raw
     current_model_raw=$(get_current_model)
-    local current_model
-    current_model=${current_model_raw#claude-}
     local complexity
     complexity=$(score_task_complexity "$task_desc")
     local recommended
