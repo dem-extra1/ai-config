@@ -1,6 +1,6 @@
 ---
 name: opposition-research
-description: "Opposition research (aka `oppo`): mine a competitor product's community pages — issue trackers, feature-request boards, subreddits, Discourse/Discord, Stack Overflow tags, review sites — for features its users ask for and value, then map the on-scope ideas to our repos and file them as tracked issues. Studies what the rival's *users want*, not what the rival *shipped*. Use when asked to 'opposition research', 'oppo', 'do oppo research on X', 'what features does X's community want', 'mine X's issues/subreddit/forum for ideas', 'what are users asking competitor for', 'competitor feature research', or 'what do users wish product X had'. Invoke explicitly with /oppo."
+description: "Opposition research (aka `oppo`): mine a competitor product's community pages — issue trackers, feature-request boards, subreddits, Discourse/Discord, Stack Overflow tags, review sites — for features its users ask for and value, then map the on-scope ideas to our repos and file them as tracked issues. Studies what the rival's *users want*, not what the rival *shipped*. Use when asked to 'opposition research', 'oppo', 'do oppo research on X', 'what features does X's community want', 'mine X's issues/subreddit/forum for ideas', 'what are users asking competitor for', 'competitor feature research', or 'what do users wish product X had'. Invoke with /opposition-research or the alias /oppo."
 user-invocable: true
 allowed-tools:
   - WebSearch
@@ -68,8 +68,9 @@ competitor's users actually talk. Look for:
   "missing", "switch from".
 - **Q&A sites** — the Stack Overflow / Stack Exchange tag; most-voted questions
   mark the sharpest friction points.
-- **Forums / chat** — Discourse instances, public Discord/Slack channels,
-  mailing lists.
+- **Forums / chat** — Discourse instances, publicly archived Discord channels
+  (read without login), mailing lists. Skip gated Discord/Slack that requires
+  an invite or account to read.
 - **Review sites** — G2, Capterra, Trustpilot, app-store and
   extension-marketplace reviews. The "cons" / "what do you dislike" sections
   name missing features directly.
@@ -88,8 +89,9 @@ surfaces — so the reads run concurrently. Give each the same scope line from
 3. **On-scope?** — does this fall inside our repo's scope (§1), or is it
    adjacent noise?
 
-Prefer official read-only APIs over scraping (see §6): the GitHub issues API
-sorted by reactions, the Reddit `.json` endpoints, the Stack Exchange API.
+Prefer official read-only APIs over scraping (see Anti-patterns): the GitHub
+issues API sorted by reactions, the Reddit `.json` endpoints, the Stack
+Exchange API.
 
 ### 4. Keep only the community-valued, on-scope ideas
 
