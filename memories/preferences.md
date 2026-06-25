@@ -232,6 +232,16 @@
   `https://d-morrison.github.io/rme/pr-preview/pr-<N>/chapters/proportional-hazards-models.html`
   (the `pr-<N>` previews are per-PR and get deleted when the PR closes, so `<N>` is a
   placeholder for your PR number). (An instance of never assume; always verify, applied to math.)
+- In Quarto, a cross-referenceable figure/table **div** (`::: {#fig-...}` / `::: {#tbl-...}`)
+  uses its **last paragraph** as the caption — the caption text must come AFTER the
+  image / code chunk / table, not before it. A caption placed first renders as ordinary
+  body prose and the float is left uncaptioned. Same rule for both `#fig-` and `#tbl-`
+  divs; for a bare pipe/markdown table, put the caption below it with the
+  `: Caption {#tbl-...}` syntax. Also: don't give the code chunk *inside* a
+  `#fig-`/`#tbl-` div a `fig-`/`tbl-`-prefixed `#| label:` — that registers a second,
+  redundant cross-reference id. Give the enclosed chunk a plain label and let the div own
+  the `@fig-`/`@tbl-` reference. Refs:
+  <https://quarto.org/docs/authoring/figures.html#figure-divs>; ucdavis/bcs#220, #223.
 - When a memory, skill, or doc entry points at a location in *another* file, don't cite
   a specific line number — it goes stale the moment that file changes, and a later reader
   who looks it up comes up empty. Quote the section heading or symbol name (e.g. the

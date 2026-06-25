@@ -236,6 +236,17 @@
   (dobson, survminer, gtsummary, …); chapters that only include macros.qmd are
   light (math-prereqs needs just plotly).
 
+## R-package PR CI gates (d-morrison / UCD-SERG R packages, e.g. `bcs`)
+- These repos gate PRs on a **changelog check** (`news.yaml` / "Check Changelog
+  Action") and a **version-check**. Every PR — even docs-only — needs **both** a
+  `NEWS.md` entry under `# <pkg> (development version)` **and** a `DESCRIPTION`
+  `Version:` dev-bump (e.g. `0.0.0.9053` → `.9054`), or CI fails. Add them up
+  front rather than waiting for the red check. (Observed on ucdavis/bcs#223.)
+- The **Spellcheck** job (`spelling::spell_check_package()`) fails on any word
+  not in `inst/WORDLIST`. For one-off non-dictionary words in NEWS/prose, prefer
+  rewording (e.g. "uncaptioned" → "without captions") over polluting WORDLIST;
+  add to WORDLIST only for real domain terms you'll reuse.
+
 ## GitHub access from bash in remote/web sessions
 - The git proxy proxies ONLY git operations — there is no `gh`/`glab` and no
   GitHub REST API reachable from a Bash/Monitor script. Use `mcp__github__*`
