@@ -241,6 +241,28 @@
   (dobson, survminer, gtsummary, …); chapters that only include macros.qmd are
   light (math-prereqs needs just plotly).
 
+## R-package PR CI gates (d-morrison / UCD-SERG R packages, e.g. `bcs`)
+- These repos gate PRs on a **changelog check** (`news.yaml` / "Check Changelog
+  Action") and a **version-check**. Every PR — even docs-only — needs **both** a
+  `NEWS.md` entry under `# <pkg> (development version)` **and** a `DESCRIPTION`
+  `Version:` dev-bump (e.g. `0.0.0.9053` → `.9054`), or CI fails. Add them up
+  front rather than waiting for the red check. (Observed on ucdavis/bcs#223.)
+- The **Spellcheck** job (`spelling::spell_check_package()`) fails on any word
+  not in `inst/WORDLIST`. For one-off non-dictionary words in NEWS/prose, prefer
+  rewording (e.g. "uncaptioned" → "without captions") over polluting WORDLIST;
+  add to WORDLIST only for real domain terms you'll reuse.
+- A `docs-check` / `R-check-docs` job runs `roxygenize()` then `git diff --exit-code
+  man/`, so a roxygen edit with a stale `man/*.Rd` fails. **When you can't run
+  `devtools::document()` (no R toolchain, e.g. a cloud/web session), you can still
+  edit roxygen docs**: hand-edit the matching `man/*.Rd` in lockstep, as long as the
+  change doesn't re-wrap lines — a **same-length word swap** (e.g. `biannual`→`biennial`,
+  both 8 chars) is ideal because roxygen copies description/param/return prose verbatim
+  into the `.Rd` and `roxygenize()` is deterministic, so an identical edit to both
+  reproduces exactly what `document()` would generate and `docs-check` passes. Watch
+  `@inheritParams`/`@inherit`: editing one function's roxygen also changes the `.Rd` of
+  every function that inherits that text, so grep `man/` for the changed sentence and
+  edit those `.Rd` files too. (Used on ucdavis/bcs#225 across 13 R files + ~18 man pages.)
+
 ## GitHub access from bash in remote/web sessions
 - The git proxy proxies ONLY git operations — there is no `gh`/`glab` and no
   GitHub REST API reachable from a Bash/Monitor script. Use `mcp__github__*`
